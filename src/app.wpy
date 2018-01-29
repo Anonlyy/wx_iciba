@@ -1,16 +1,21 @@
 <style lang="scss">
   #app {
-    box-sizing: border-box;
     width: 100%;
     height: 100%;
     color: #333;
-    font-size: 40rpx;
+    font-size: 30 rpx;
     font-weight: 300;
     font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   }
-  page{
+
+  page {
+    box-sizing: border-box;
     width: 100%;
     height: 100%;
+  }
+
+  view {
+    box-sizing: border-box;
   }
 </style>
 
@@ -21,13 +26,31 @@
   export default class extends wepy.app {
     config = {
       pages: [
-        'pages/index'
+        'pages/index',
+        'pages/translate'
       ],
       window: {
         backgroundTextStyle: 'light',
         navigationBarBackgroundColor: '#fff',
         navigationBarTitleText: 'WeChat',
         navigationBarTextStyle: 'black'
+      },
+      tabBar: {
+        color: '#AEADAD',
+        selectedColor: '#049BFF',
+        backgroundColor: '#fff',
+        borderStyle: 'black',
+        list: [{
+          pagePath: 'pages/index',
+          selectedIconPath: './assets/img/tabbar/tabBar_ic_index_active.png',
+          iconPath: './assets/img/tabbar/tabBar_ic_index.png',
+          text: '首页'
+        }, {
+          pagePath: 'pages/translate',
+          selectedIconPath: './assets/img/tabbar/tabBar_ic_translate_active.png',
+          iconPath: './assets/img/tabbar/tabBar_ic_translate.png',
+          text: '翻译'
+        }]
       }
     }
 
@@ -46,11 +69,11 @@
     getUserInfo(cb) {
       const that = this
       if (this.globalData.userInfo) {
-        return this.globalData.userInfo;
+        return this.globalData.userInfo
       }
       wepy.getUserInfo({
         success(res) {
-          that.globalData.userInfo = res.userInfo;
+          that.globalData.userInfo = res.userInfo
           cb && cb(res.userInfo)
         }
       })
