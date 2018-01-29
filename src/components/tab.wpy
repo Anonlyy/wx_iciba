@@ -1,0 +1,25 @@
+<template>
+  <view>
+
+  </view>
+</template>
+<script>
+
+  import wepy from 'wepy'
+
+  // export default class MyPage extends wepy.page {
+  export default class Header extends wepy.component {
+    components = {};
+
+    data = {};
+    methods = {};
+
+    events = {};
+    // Other properties
+  }
+
+</script>
+
+<style lang="scss">
+
+</style>
