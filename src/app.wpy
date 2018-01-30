@@ -1,9 +1,9 @@
-<style lang="scss">
+<style lang="scss" rel="stylesheet/scss">
   #app {
     width: 100%;
     height: 100%;
     color: #333;
-    font-size: 30 rpx;
+    font-size: 30rpx;
     font-weight: 300;
     font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   }
@@ -16,6 +16,9 @@
 
   view {
     box-sizing: border-box;
+  }
+  @function rpx($value) {
+      @return $value * 1rpx;
   }
 </style>
 

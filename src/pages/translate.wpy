@@ -8,7 +8,7 @@
   import wepy from 'wepy'
 
   // export default class MyPage extends wepy.page {
-  export default class Header extends wepy.page {
+  export default class Translate extends wepy.page {
     components = {};
 
     config = {
@@ -25,5 +25,7 @@
 </script>
 
 <style lang="scss">
+  #app{
 
+  }
 </style>
