@@ -17,7 +17,7 @@ module.exports = {
     },
     modules: ['node_modules']
   },
-  eslint: true,
+  eslint: false,
   compilers: {
     // less: {
     //   compress: true
@@ -29,8 +29,6 @@ module.exports = {
       sourceMap: true,
       presets: [
         'env',
-        "es2015",
-        "stage-1"
       ],
       plugins: [
         'transform-class-properties',

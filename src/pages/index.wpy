@@ -26,7 +26,8 @@
 </template>
 
 <script>
-  import wepy from 'wepy'
+  import wepy from 'wepy';
+  import {getInterface} from '../api/api'
 
   export default class Index extends wepy.page {
     config = {
@@ -45,16 +46,12 @@
       },
 
       doSearch() {
-        this.getInfo()
+        getInterface().then(res => { console.log(res.data) })
       }
 
     }
 
     getInfo() {
-      wepy.request({
-        url: 'https://dict-mobile.iciba.com/interface/index.php?c=word&m=getsuggest&nums=10&client=6&is_need_mean=1&word=h',
-        method: 'GET'
-      }).then(res => { console.log(res.data) })
     }
 
     events = {}

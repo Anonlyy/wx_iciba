@@ -21,7 +21,7 @@
 
 <script>
   import wepy from 'wepy'
-  import 'promise-polyfill'
+  import Promise from 'promise-polyfill'
   import 'wepy-async-function'
   export default class extends wepy.app {
     config = {
