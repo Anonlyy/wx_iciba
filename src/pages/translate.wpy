@@ -1,6 +1,6 @@
 <template>
   <view>
-
+    <textarea>1212122</textarea>
   </view>
 </template>
 <script>
@@ -10,6 +10,10 @@
   // export default class MyPage extends wepy.page {
   export default class Header extends wepy.page {
     components = {};
+
+    config = {
+      navigationBarTitleText: '翻译'
+    };
 
     data = {};
     methods = {};

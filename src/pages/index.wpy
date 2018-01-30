@@ -1,17 +1,16 @@
-
 <template>
   <view id="app">
     <image class="bg" src="../assets/img/index_bg.jpg"></image>
+    <view class="bg-shade {{isFocus?'bg-focus':''}}"></view>
     <view class="container">
       <view class="container-header">
-        <view class="search-main">
+        <view class="search-main {{isFocus?'input-focus':''}}">
           <view class="search-main-box">
             <view class="input-logo">
               <image src="//cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
             </view>
-
-            <input class="search-input" placeholder="单词和句子都交给小词" auto-focus/>
-            <view class="btn-search">
+            <input class="search-input" placeholder="单词和句子都交给小词" @tap="clickFocus"/>
+            <view class="btn-search" @tap="doSearch">
               <image src="//cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
             </view>
           </view>
@@ -19,7 +18,9 @@
         </view>
 
       </view>
-
+      <view class="container-body">
+          {{message}}
+      </view>
     </view>
   </view>
 </template>
@@ -31,18 +32,32 @@
     config = {
       navigationBarTitleText: '主页'
     }
-    components = {
-    }
+    components = {}
 
     data = {
-      userInfo: ''
+      isFocus: true,
+      message: 'xxx'
     }
 
     methods = {
+      clickFocus() {
+        this.isFocus = true
+      },
+
+      doSearch() {
+        this.getInfo()
+      }
+
     }
 
-    events = {
+    getInfo() {
+      wepy.request({
+        url: 'https://dict-mobile.iciba.com/interface/index.php?c=word&m=getsuggest&nums=10&client=6&is_need_mean=1&word=h',
+        method: 'GET'
+      }).then(res => { console.log(res.data) })
     }
+
+    events = {}
 
     onLoad() {
       let self = this
@@ -56,69 +71,86 @@
 </script>
 
 <style lang="scss">
-  #app{
-    .bg{
+  #app {
+    .bg, .bg-shade {
       width: 100%;
       height: 100%;
       position: absolute;
-      top:0;
+      top: 0;
       left: 0;
-      right: 0;
+     right: 0;
       bottom: 0;
       z-index: -1;
     }
-    .container{
+    .bg-shade {
+      opacity: 0;
+      transition: all .4s;
+      background-color:rgba(0, 0, 0, .6);
+      z-index: -1;
+    }
+    .bg-focus {
+      opacity: 1;
+    }
+    .container {
       width: 100%;
       height: 100%;
-      .container-header{
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        .search-main{
-          display: table;
-          align-items: center;
-          width:100%;
-          padding:0 15rpx;
-          .search-main-box{
+      .container-header {
+        display: block;
+        height: 15%;
+        .search-main {
+          position: absolute;
+          top: 50%;
+          transition: all .3s;
+          transform: translateY(-50%);
+          width: 100%;
+          padding: 0 15rpx;
+          .search-main-box {
             width: 100%;
+            display: table;
             border-radius: 10rpx;
             background-color: white;
-            .input-logo{
+            transition: all .3s;
+            .input-logo {
               width: 10%;
               display: table-cell;
               vertical-align: middle;
-              padding:0 10rpx 0 15rpx;
-              image{
-                width:80rpx;
-                height:26rpx;
+              padding: 0 10rpx 0 15rpx;
+              image {
+                width: 80rpx;
+                height: 26rpx;
                 vertical-align: middle;
               }
             }
-            .btn-search{
+            .btn-search {
               display: table-cell;
               width: 15%;
-              height:100rpx;
+              height: 100rpx;
               vertical-align: middle;
               background-color: #008FFF;
               text-align: center;
-              image{
-                width:40rpx;
+              image {
+                width: 40rpx;
                 vertical-align: middle;
-                height:40rpx;
+                height: 40rpx;
               }
             }
-            .search-input{
+            .search-input {
               width: 75%;
               font-size: 14px;
               display: table-cell;
-              padding-left:10rpx;
+              padding-left: 10rpx;
             }
           }
-
         }
-
+        .input-focus {
+          top: 20rpx;
+          transform: translateY(0);
+        }
       }
+      .container-body {
+        height: 85%;
+      }
+
     }
   }
 </style>

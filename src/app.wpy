@@ -21,8 +21,8 @@
 
 <script>
   import wepy from 'wepy'
+  import 'promise-polyfill'
   import 'wepy-async-function'
-
   export default class extends wepy.app {
     config = {
       pages: [
@@ -61,6 +61,7 @@
     constructor() {
       super()
       this.use('requestfix')
+      this.use('promisify')
     }
 
     onLaunch() {
