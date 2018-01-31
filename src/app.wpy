@@ -17,6 +17,13 @@
   view {
     box-sizing: border-box;
   }
+  .clearfix::before,.clearfix::after{
+    content: '';
+    display: block;
+    clear: both;
+    visibility: hidden;
+    overflow: hidden;
+  }
   @function rpx($value) {
       @return $value * 1rpx;
   }

@@ -1,216 +1,258 @@
 <template>
-    <view id="app">
-        <image class="bg" src="../assets/img/index_bg.jpg"></image>
-        <!--class="bg-shade"-->
-        <!--{{'bg-search-result':isSearchResult}}-->
-        <!--'bg-focus':isFocus-->
-        <view  class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult?'bg-search-result':''}}]"></view>
-        <view class="container">
-            <view class="container-header {{isSearchResult?'bg-search':''}}" >
-                <view class="search-main {{ isFocus ?'input-focus':''}}">
-                    <view class="search-main-box">
-                        <view class="input-logo">
-                            <image src="//cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
-                        </view>
-                        <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus"  @input="changeInput"/>
-                        <view class="btn-search" @tap="getWordMean">
-                            <image src="//cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
-                        </view>
-                    </view>
-
-                </view>
+  <view id="app">
+    <image class="bg" src="../assets/img/index_bg.jpg"></image>
+    <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult?'bg-search-result':''}}]"></view>
+    <view class="container">
+      <view class="container-header {{isSearchResult?'bg-search':''}}">
+        <view class="search-main {{ isFocus ?'input-focus':''}}">
+          <view class="search-main-box">
+            <view class="input-logo">
+              <image src="//cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
             </view>
-            <view class="container-body">
-                <view class="interface-content" @tap="inputBlur" wx:if="{{!isSearchResult}}">
-                    <repeat class="list" for="{{result}}" key="index" index="index" item="item">
-                        <view class="list-item" @tap.stop="getWordMean">
-                            <text class="item-key">{{item.key}}</text>
-                            <repeat class="item-value" for="{{item.means}}" key="meansIndex" index="meansIndex"
-                                    item="meansItem">
-                                <view wx:if="{{meansIndex==0}}" class="item-value">
-                                    <text>{{meansItem.part}}</text>
-                                    <text>{{meansItem.means}}</text>
-                                </view>
-                            </repeat>
-                        </view>
-                    </repeat>
-                </view>
-
+            <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus" @input="changeInput"/>
+            <view class="btn-search" @tap="getWordMean">
+              <image src="//cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
             </view>
+          </view>
+
         </view>
+      </view>
+      <view class="container-body">
+        <view class="interface-content" @tap="inputBlur" wx:if="{{!isSearchResult}}">
+          <repeat class="list" for="{{result}}" key="index" index="index" item="item">
+            <view class="list-item" @tap.stop="getWordMean">
+              <view class="item-key">
+                {{item.key}}
+              </view>
+              <repeat for="{{item.means}}" key="meansIndex" index="meansIndex"
+                      item="meansItem">
+                <view wx:if="{{meansIndex==0}}" class="item-value">
+                  <text>{{meansItem.part}}</text>
+                  <text>{{meansItem.means}}</text>
+                </view>
+              </repeat>
+            </view>
+          </repeat>
+        </view>
+        <view class="wordMean-content" wx:else>
+
+
+
+        </view>
+
+      </view>
     </view>
+    <Toast></Toast>
+  </view>
 </template>
 
 <script>
-    import wepy from 'wepy';
-    import {getInterface} from '../api/api';
+  import wepy from 'wepy';
+  import {getInterface, getWordMean} from '../api/api';
 
-    export default class Index extends wepy.page {
-        config = {
-            navigationBarTitleText: '主页'
-        }
-        components = {}
-
-        data = {
-            isFocus: false,
-            isSearchResult:false,
-            result: [],
-            inputValue: ''
-        }
-
-        methods = {
-            //触发遮罩层关闭显示
-            inputBlur() {
-                this.isFocus = false;
-            },
-            inputFocus(){
-                this.isFocus = true;
-            },
-            changeInput(event){
-                this.getInterfaceContent(event.detail.value);
-            },
-            getWordMean(event){
-                const _this = this;
-                this.isSearchResult = true;
-                console.log('xxx');
-            }
-        }
-
-        async getInterfaceContent(value) {
-            const _this = this;
-            let params = {
-                word: value
-            }
-            _this.result = 10;
-            let res = await getInterface(params);
-            _this.setData({
-                result: res.data.message
-            })
-        }
-
-        events = {}
-
-        onLoad() {
-            let self = this
-
-            this.$parent.getUserInfo(function (userInfo) {
-                if (userInfo) {
-                    self.userInfo = userInfo
-                }
-            })
-        }
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '主页'
     }
+    components = {}
+
+    data = {
+      isFocus: false,
+      isSearchResult: false,
+      result: [],
+      inputValue: '',
+      baseInfo: {
+        exchange:{},
+        symbols:{}
+      }
+    }
+
+    methods = {
+      //触发遮罩层关闭显示
+      inputBlur() {
+        this.isFocus = false;
+      },
+      inputFocus() {
+        this.isFocus = true;
+      },
+      changeInput(event) {
+        this.inputValue = event.detail.value;
+      },
+      getWordMean(event) {
+        const _this = this;
+        if (_this.inputValue == "" || _this.inputValue == null) {
+          wx.showToast({
+            title: '字符为空',
+            image: '../assets/img/ic-error.png',
+            duration: 2000
+          });
+          return;
+        }
+        _this.getWordMeanContent(_this.inputValue);
+        _this.isSearchResult = true;
+      }
+    }
+
+    //获取联想单词
+    async getInterfaceContent(value) {
+      const _this = this;
+      let params = {
+        word: value
+      }
+      let res = await getInterface(params);
+      _this.setData({
+        result: res.data.message
+      })
+    }
+
+
+    async getWordMeanContent(value) {
+      const _this = this;
+      let params = {
+        word: value
+      }
+      let res = await getWordMean(params);
+      _this.baseInfo  = {
+        exchange:res.data.baesInfo.exchange,
+        symbols:res.data.baesInfo.symbols,
+      };
+      console.log(_this.baseInfo);
+    }
+
+    events = {}
+
+    watch = {
+      inputValue(newValue){
+        this.getInterfaceContent(newValue);
+      }
+    }
+    computed  = {
+
+    }
+
+    onLoad() {
+      let self = this;
+      this.$parent.getUserInfo(function (userInfo) {
+        if (userInfo) {
+          self.userInfo = userInfo
+        }
+      })
+    }
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-    #app {
-        .bg, .bg-shade {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
+  #app {
+    .bg, .bg-shade {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
 
-        }
-        .bg-shade {
-            transition: all .4s;
-            background-color: rgba(0, 0, 0, 0);
-            z-index: -1;
-        }
-        .bg-focus {
-            background-color: rgba(0, 0, 0, .6);
-        }
-        .bg-search-result{
-            background-color: rgba(255, 255, 255, 1);
-        }
-        .container {
-            width: 100%;
-            height: 100%;
-            .container-header {
-                display: block;
-                height: 13%;
-                .search-main {
-                    position: absolute;
-                    top: 50%;
-                    transition: all .3s;
-                    transform: translateY(-50%);
-                    width: 100%;
-                    padding: 0 15rpx;
-                    .search-main-box {
-                        width: 100%;
-                        display: table;
-                        border-radius: 10rpx;
-                        background-color: white;
-                        transition: all .3s;
-                        .input-logo {
-                            width: 10%;
-                            display: table-cell;
-                            vertical-align: middle;
-                            padding: 0 10rpx 0 15rpx;
-                            image {
-                                width: 80rpx;
-                                height: 26rpx;
-                                vertical-align: middle;
-                            }
-                        }
-                        .btn-search {
-                            display: table-cell;
-                            width: 15%;
-                            height: 100rpx;
-                            vertical-align: middle;
-                            background-color: #008FFF;
-                            text-align: center;
-                            image {
-                                width: 40rpx;
-                                vertical-align: middle;
-                                height: 40rpx;
-                            }
-                        }
-                        .search-input {
-                            width: 75%;
-                            font-size: 14px;
-                            display: table-cell;
-                            padding-left: 10rpx;
-                        }
-                    }
-                }
-                .input-focus {
-                    top: 20rpx;
-                    transform: translateY(0);
-                }
-            }
-            .bg-search{
-                background-color: #ccc;
-            }
-            .container-body {
-                height: 87%;
-                width: 100%;
-                padding: 0 20rpx;
-                .interface-content{
-                    height: 100%;
-                    width: 100%;
-                }
-                .list-item {
-                    color: white;
-                    font-size: 32rpx;
-                    padding:10rpx 0;
-                    display: flex;
-                    align-items: center;
-                    .item-key {
-                        display: inline-block;
-                        margin-right:18rpx;
-                        font-weight: normal;
-                    }
-                    .item-value {
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                    }
-                }
-            }
-        }
     }
+    .bg-shade {
+      transition: all .4s;
+      background-color: rgba(0, 0, 0, 0);
+      z-index: -1;
+    }
+    .bg-focus {
+      background-color: rgba(0, 0, 0, .6);
+    }
+    .bg-search-result {
+      background-color: rgba(255, 255, 255, 1);
+    }
+    .container {
+      width: 100%;
+      height: 100%;
+      .container-header {
+        display: block;
+        height: 13%;
+        .search-main {
+          position: absolute;
+          top: 50%;
+          transition: all .3s;
+          transform: translateY(-50%);
+          width: 100%;
+          padding: 0 15rpx;
+          .search-main-box {
+            width: 100%;
+            display: table;
+            border-radius: 10rpx;
+            background-color: white;
+            transition: all .3s;
+            .input-logo {
+              width: 10%;
+              display: table-cell;
+              vertical-align: middle;
+              padding: 0 10rpx 0 15rpx;
+              image {
+                width: 80rpx;
+                height: 26rpx;
+                vertical-align: middle;
+              }
+            }
+            .btn-search {
+              display: table-cell;
+              width: 15%;
+              height: 100rpx;
+              vertical-align: middle;
+              background-color: #008FFF;
+              text-align: center;
+              image {
+                width: 40rpx;
+                vertical-align: middle;
+                height: 40rpx;
+              }
+            }
+            .search-input {
+              width: 75%;
+              font-size: 14px;
+              display: table-cell;
+              padding-left: 10rpx;
+            }
+          }
+        }
+        .input-focus {
+          top: 20rpx;
+          transform: translateY(0);
+        }
+      }
+      .bg-search {
+        background-color: #ccc;
+      }
+      .container-body {
+        height: 87%;
+        width: 100%;
+
+        .interface-content {
+          height: 100%;
+          width: 100%;
+        }
+        .list-item {
+          color: white;
+          width: 100%;
+          padding: 18rpx 20rpx;
+          font-size: 32rpx;
+          display: flex;
+          align-items: center;
+          .item-key {
+            display: inline-block;
+            margin-right: 18rpx;
+            font-weight: normal;
+
+          }
+          .item-value{
+            display: inline-block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+          }
+        }
+      }
+    }
+  }
 </style>
