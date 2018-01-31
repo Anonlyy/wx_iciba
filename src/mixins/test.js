@@ -1,21 +1,22 @@
 import wepy from 'wepy'
 
 export default class testMixin extends wepy.mixin {
-  data = {
-    mixin: 'This is mixin data.'
-  }
-  methods = {
-    tap () {
-      this.mixin = 'mixin data was changed'
-      console.log('mixin method tap')
+    data = {
+
     }
-  }
 
-  onShow() {
-    console.log('mixin onShow')
-  }
+    methods = {
+        tap () {
+            this.mixin = 'mixin data was changed'
+            console.log('mixin method tap')
+        }
+    }
 
-  onLoad() {
-    console.log('mixin onLoad')
-  }
+    // onShow() {
+    //     console.log('mixin onShow')
+    // }
+    //
+    // onLoad() {
+    //     console.log('mixin onLoad')
+    // }
 }

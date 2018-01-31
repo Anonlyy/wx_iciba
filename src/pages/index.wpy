@@ -1,258 +1,363 @@
 <template>
-  <view id="app">
-    <image class="bg" src="../assets/img/index_bg.jpg"></image>
-    <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult?'bg-search-result':''}}]"></view>
-    <view class="container">
-      <view class="container-header {{isSearchResult?'bg-search':''}}">
-        <view class="search-main {{ isFocus ?'input-focus':''}}">
-          <view class="search-main-box">
-            <view class="input-logo">
-              <image src="//cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
-            </view>
-            <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus" @input="changeInput"/>
-            <view class="btn-search" @tap="getWordMean">
-              <image src="//cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
-            </view>
-          </view>
+    <view id="app">
+        <image class="bg" src="../assets/img/index_bg.jpg"></image>
+        <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult?'bg-search-result':''}}]"></view>
+        <view class="container">
+            <view class="container-header {{isSearchResult?'bg-search':''}}">
+                <view class="search-main {{ isFocus ?'input-focus':''}}">
+                    <view class="search-main-box">
+                        <view class="input-logo">
+                            <image src="//cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
+                        </view>
+                        <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus"
+                               @input="changeInput"/>
+                        <view class="btn-search" @tap="getWordMean">
+                            <image src="//cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
+                        </view>
+                    </view>
 
-        </view>
-      </view>
-      <view class="container-body">
-        <view class="interface-content" @tap="inputBlur" wx:if="{{!isSearchResult}}">
-          <repeat class="list" for="{{result}}" key="index" index="index" item="item">
-            <view class="list-item" @tap.stop="getWordMean">
-              <view class="item-key">
-                {{item.key}}
-              </view>
-              <repeat for="{{item.means}}" key="meansIndex" index="meansIndex"
-                      item="meansItem">
-                <view wx:if="{{meansIndex==0}}" class="item-value">
-                  <text>{{meansItem.part}}</text>
-                  <text>{{meansItem.means}}</text>
                 </view>
-              </repeat>
             </view>
-          </repeat>
+            <view class="container-body">
+                <view class="interface-content" @tap="inputBlur" wx:if="{{!isSearchResult}}">
+                    <repeat class="list" for="{{result}}" key="index" index="index" item="item">
+                        <view class="list-item" @tap.stop="getWordMean">
+                            <view class="item-key">
+                                {{item.key}}
+                            </view>
+                            <repeat for="{{item.means}}" key="meansIndex" index="meansIndex"
+                                    item="meansItem">
+                                <view wx:if="{{meansIndex==0}}" class="item-value">
+                                    <text>{{meansItem.part}}</text>
+                                    <text>{{meansItem.means}}</text>
+                                </view>
+                            </repeat>
+                        </view>
+                    </repeat>
+                </view>
+                <view class="wordMean-content" wx:else>
+                    <!--基本信息-->
+                    <view class="dic-basic">
+                        <view class="dic-basic-info">
+                            <view class="dic-basic-voice">
+                                <view class="voice-item">
+                                    英 [{{baseInfo.symbols.ph_en}}]
+                                </view>
+                                <view class="voice-item">
+                                    美 [{{baseInfo.symbols.ph_am}}]
+                                </view>
+                            </view>
+                            <view class="dic-basic-explain">
+                                <repeat for="{{baseInfo.symbols.parts}}" key="index" index="index" item="item">
+                                    <view class="explain-item">
+                                        <view class="item-key">{{item.part}}</view>
+                                        <view class="item-value">
+                                            <repeat for="{{item.means}}" key="meanItemIndex" index="meanIteIndex" item="mean">
+                                                <text>{{mean}}</text>
+                                            </repeat>
+                                        </view>
+                                    </view>
+                                </repeat>
+                            </view>
+                            <view class="dic-plural">
+                                <view class="dic-plural-title">
+                                    <repeat for="{{baseInfo.exchange}}" key="index" index="index" item="item">
+                                        <view class="plural-item"><text>{{item.name}}:</text> <text>{{item.value}}</text></view>
+                                    </repeat>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                    <!--基本信息-->
+
+                </view>
+
+            </view>
         </view>
-        <view class="wordMean-content" wx:else>
-
-
-
-        </view>
-
-      </view>
     </view>
-    <Toast></Toast>
-  </view>
 </template>
 
 <script>
-  import wepy from 'wepy';
-  import {getInterface, getWordMean} from '../api/api';
+    import wepy from 'wepy';
+    import {getInterface, getWordMean} from '../api/api';
+    import {exchangeFilter} from '../api/config'
 
-  export default class Index extends wepy.page {
-    config = {
-      navigationBarTitleText: '主页'
-    }
-    components = {}
-
-    data = {
-      isFocus: false,
-      isSearchResult: false,
-      result: [],
-      inputValue: '',
-      baseInfo: {
-        exchange:{},
-        symbols:{}
-      }
-    }
-
-    methods = {
-      //触发遮罩层关闭显示
-      inputBlur() {
-        this.isFocus = false;
-      },
-      inputFocus() {
-        this.isFocus = true;
-      },
-      changeInput(event) {
-        this.inputValue = event.detail.value;
-      },
-      getWordMean(event) {
-        const _this = this;
-        if (_this.inputValue == "" || _this.inputValue == null) {
-          wx.showToast({
-            title: '字符为空',
-            image: '../assets/img/ic-error.png',
-            duration: 2000
-          });
-          return;
+    export default class Index extends wepy.page {
+        config = {
+            navigationBarTitleText: '主页'
         }
-        _this.getWordMeanContent(_this.inputValue);
-        _this.isSearchResult = true;
-      }
-    }
+        components = {}
 
-    //获取联想单词
-    async getInterfaceContent(value) {
-      const _this = this;
-      let params = {
-        word: value
-      }
-      let res = await getInterface(params);
-      _this.setData({
-        result: res.data.message
-      })
-    }
-
-
-    async getWordMeanContent(value) {
-      const _this = this;
-      let params = {
-        word: value
-      }
-      let res = await getWordMean(params);
-      _this.baseInfo  = {
-        exchange:res.data.baesInfo.exchange,
-        symbols:res.data.baesInfo.symbols,
-      };
-      console.log(_this.baseInfo);
-    }
-
-    events = {}
-
-    watch = {
-      inputValue(newValue){
-        this.getInterfaceContent(newValue);
-      }
-    }
-    computed  = {
-
-    }
-
-    onLoad() {
-      let self = this;
-      this.$parent.getUserInfo(function (userInfo) {
-        if (userInfo) {
-          self.userInfo = userInfo
+        data = {
+            isFocus: false,
+            isSearchResult: false,
+            result: [],
+            inputValue: '',
+            baseInfo: {
+                exchange: [],
+                symbols: {}
+            },
+            exchangeFilter: exchangeFilter
         }
-      })
+
+        methods = {
+            //触发遮罩层关闭显示
+            inputBlur() {
+                this.isFocus = false;
+            },
+            inputFocus() {
+                this.isFocus = true;
+            },
+            changeInput(event) {
+                this.inputValue = event.detail.value;
+            },
+            getWordMean() {
+                const _this = this;
+                if (_this.inputValue == "" || _this.inputValue == null) {
+                    wx.showToast({
+                        title: '字符为空',
+                        image: '../assets/img/ic-error.png',
+                        duration: 2000
+                    });
+                    return;
+                }
+                _this.getWordMeanContent(_this.inputValue);
+                _this.isSearchResult = true;
+            }
+        }
+
+        //获取联想单词
+        async getInterfaceContent(value) {
+            const _this = this;
+            let params = {
+                word: value
+            }
+            let res = await getInterface(params);
+            _this.setData({
+                result: res.data.message
+            })
+        }
+
+
+        async getWordMeanContent(value) {
+            const _this = this;
+            let params = {
+                word: value
+            }
+            let res = await getWordMean(params);
+
+            for (let item in res.data.baesInfo.exchange) {
+                if (res.data.baesInfo.exchange[item].length !== 0) {
+                    _this.baseInfo.exchange.push({
+                        name: _this.exchangeFilter[item].value,
+                        value: res.data.baesInfo.exchange[item].join('|').toString()
+                    })
+                }
+            }
+
+
+
+            _this.baseInfo = {
+                exchange: _this.baseInfo.exchange, //再赋值
+                symbols: res.data.baesInfo.symbols[0],
+
+            };
+            _this.setData({
+                baseInfo:_this.baseInfo
+            })
+        }
+
+        events = {}
+
+        mixins = []
+        watch = {
+            inputValue(newValue){
+                this.getInterfaceContent(newValue);
+            }
+        }
+
+        onLoad() {
+            let self = this;
+            this.$parent.getUserInfo(function (userInfo) {
+                if (userInfo) {
+                    self.userInfo = userInfo
+                }
+            })
+        }
     }
-  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-  #app {
-    .bg, .bg-shade {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: -1;
-
-    }
-    .bg-shade {
-      transition: all .4s;
-      background-color: rgba(0, 0, 0, 0);
-      z-index: -1;
-    }
-    .bg-focus {
-      background-color: rgba(0, 0, 0, .6);
-    }
-    .bg-search-result {
-      background-color: rgba(255, 255, 255, 1);
-    }
-    .container {
-      width: 100%;
-      height: 100%;
-      .container-header {
-        display: block;
-        height: 13%;
-        .search-main {
-          position: absolute;
-          top: 50%;
-          transition: all .3s;
-          transform: translateY(-50%);
-          width: 100%;
-          padding: 0 15rpx;
-          .search-main-box {
+    #app {
+        .bg, .bg-shade {
             width: 100%;
-            display: table;
-            border-radius: 10rpx;
-            background-color: white;
-            transition: all .3s;
-            .input-logo {
-              width: 10%;
-              display: table-cell;
-              vertical-align: middle;
-              padding: 0 10rpx 0 15rpx;
-              image {
-                width: 80rpx;
-                height: 26rpx;
-                vertical-align: middle;
-              }
-            }
-            .btn-search {
-              display: table-cell;
-              width: 15%;
-              height: 100rpx;
-              vertical-align: middle;
-              background-color: #008FFF;
-              text-align: center;
-              image {
-                width: 40rpx;
-                vertical-align: middle;
-                height: 40rpx;
-              }
-            }
-            .search-input {
-              width: 75%;
-              font-size: 14px;
-              display: table-cell;
-              padding-left: 10rpx;
-            }
-          }
-        }
-        .input-focus {
-          top: 20rpx;
-          transform: translateY(0);
-        }
-      }
-      .bg-search {
-        background-color: #ccc;
-      }
-      .container-body {
-        height: 87%;
-        width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
 
-        .interface-content {
-          height: 100%;
-          width: 100%;
         }
-        .list-item {
-          color: white;
-          width: 100%;
-          padding: 18rpx 20rpx;
-          font-size: 32rpx;
-          display: flex;
-          align-items: center;
-          .item-key {
-            display: inline-block;
-            margin-right: 18rpx;
-            font-weight: normal;
+        .bg-shade {
+            transition: all .4s;
+            background-color: rgba(0, 0, 0, 0);
+            z-index: -1;
+        }
+        .bg-focus {
+            background-color: rgba(0, 0, 0, .6);
+        }
+        .bg-search-result {
+            background-color: rgba(255, 255, 255, 1);
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            .container-header {
+                display: block;
+                height: 13%;
+                .search-main {
+                    position: absolute;
+                    top: 50%;
+                    transition: all .3s;
+                    transform: translateY(-50%);
+                    width: 100%;
+                    padding: 0 15rpx;
+                    .search-main-box {
+                        width: 100%;
+                        display: table;
+                        border-radius: 10rpx;
+                        background-color: white;
+                        transition: all .3s;
+                        .input-logo {
+                            width: 10%;
+                            display: table-cell;
+                            vertical-align: middle;
+                            padding: 0 10rpx 0 15rpx;
+                            image {
+                                width: 80rpx;
+                                height: 26rpx;
+                                vertical-align: middle;
+                            }
+                        }
+                        .btn-search {
+                            display: table-cell;
+                            width: 15%;
+                            height: 100rpx;
+                            vertical-align: middle;
+                            background-color: #008FFF;
+                            text-align: center;
+                            image {
+                                width: 40rpx;
+                                vertical-align: middle;
+                                height: 40rpx;
+                            }
+                        }
+                        .search-input {
+                            width: 75%;
+                            font-size: 14px;
+                            display: table-cell;
+                            padding-left: 10rpx;
+                        }
+                    }
+                }
+                .input-focus {
+                    top: 20rpx;
+                    transform: translateY(0);
+                }
+            }
+            .bg-search {
+                background-color: #ccc;
+            }
+            .container-body {
+                height: 87%;
+                width: 100%;
+                .interface-content {
+                    height: 100%;
+                    width: 100%;
+                    .list-item {
+                        color: white;
+                        width: 100%;
+                        padding: 18rpx 20rpx;
+                        font-size: 32rpx;
+                        display: flex;
+                        align-items: center;
+                        .item-key {
+                            display: inline-block;
+                            margin-right: 18rpx;
+                            font-weight: normal;
 
-          }
-          .item-value{
-            display: inline-block;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            overflow: hidden;
-          }
+                        }
+                        .item-value {
+                            display: inline-block;
+                            text-overflow: ellipsis;
+                            white-space: nowrap;
+                            overflow: hidden;
+                        }
+                    }
+                }
+                .wordMean-content{
+                    padding:30rpx 20rpx 0;
+                    .dic-basic{
+                        width: 100%;
+                        .dic-basic-info{
+                            .dic-basic-voice{
+                                .voice-item{
+                                    display: inline-block;
+                                    margin-right: 30rpx;
+                                    font-size: 35rpx;
+                                    font-weight: normal;
+                                    color: #333333;
+                                }
+                            }
+                            .dic-basic-explain{
+                                margin-top:30rpx;
+                                margin-bottom: 20rpx;
+                                border-bottom:1px solid #eee;
+                                padding-bottom:20rpx;
+                                .explain-item{
+                                    display: table;
+                                    width: 100%;
+                                    font-size: 34rpx;
+                                    .item-key{
+                                        display: table-cell;
+                                        vertical-align: top;
+                                        line-height:50rpx;
+                                    }
+                                    .item-value{
+                                        display: table-cell;
+                                        width: 90%;
+                                        padding-right:180rpx;
+                                        line-height:50rpx;
+                                        text{
+                                            color: #000;
+                                            font-weight: normal;
+                                            display: block;
+                                            float: left;
+                                        }
+                                    }
+                                }
+                            }
+                            .dic-plural{
+                                .dic-plural-title{
+                                    .plural-item{
+                                        height:40rpx;
+                                        line-height:40rpx;
+                                        margin-right:40rpx;
+                                        display: inline-block;
+                                        font-size: 33rpx;
+                                        text{
+                                            display: inline-block;
+                                            margin-right: 30rpx;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
-      }
     }
-  }
 </style>
