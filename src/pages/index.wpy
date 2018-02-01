@@ -69,7 +69,21 @@
                         </view>
                     </view>
                     <!--基本信息-->
+                    <!--单词详义-->
+                    <view class="dic-content">
+                        <view class="dic-list">
+                            <view class="dic-item">
+                                <view class="dic-item-title">
+                                    网络释义
+                                </view>
+                                <view class="dic-item-content">
+                                    <view class="title">常用词组</view>
+                                </view>
 
+                            </view>
+                        </view>
+                    </view>
+                    <!--单词详义-->
                 </view>
 
             </view>
@@ -96,6 +110,15 @@
             baseInfo: {
                 exchange: [],
                 symbols: {}
+            },
+            detailsInfo:{
+                ee_mean:{}, //英英词典
+                sentence:{}, //双语例句
+                netmean:{}, //网络释义
+                synonym:{}, //同义词
+                antonym:{},//反义词
+                phrase:{},//词组搭配
+                jushi:{},//例句
             },
             exchangeFilter: exchangeFilter
         }
@@ -132,6 +155,7 @@
             let params = {
                 word: value
             }
+            _this.result = [];
             let res = await getInterface(params);
             _this.setData({
                 result: res.data.message
@@ -141,6 +165,10 @@
 
         async getWordMeanContent(value) {
             const _this = this;
+            _this.baseInfo = {
+                exchange: [],
+                symbols: {}
+            }
             let params = {
                 word: value
             }
@@ -154,15 +182,24 @@
                     })
                 }
             }
-
-
-
             _this.baseInfo = {
                 exchange: _this.baseInfo.exchange, //再赋值
                 symbols: res.data.baesInfo.symbols[0],
-
             };
+            //赋值操作
+            _this.detailsInfo = {
+                ee_mean:res.data.ee_mean?res.data.ee_mean:{},
+                sentence:res.data.sentence?res.data.sentence:{},
+                netmean:res.data.netmean?res.data.netmean:{},
+                synonym:res.data.synonym?res.data.synonym:{},
+                antonym:res.data.antonym?res.data.antonym:{},
+                phrase:res.data.phrase?res.data.phrase:{},
+                jushi:res.data.jushi?res.data.jushi:{},
+            }
+            console.log(_this.detailsInfo);
+
             _this.setData({
+                detailsInfo:_this.detailsInfo,
                 baseInfo:_this.baseInfo
             })
         }
@@ -268,7 +305,7 @@
                 }
             }
             .bg-search {
-                background-color: #ccc;
+                background-color: #efefef;
             }
             .container-body {
                 height: 87%;
@@ -298,9 +335,12 @@
                     }
                 }
                 .wordMean-content{
-                    padding:30rpx 20rpx 0;
+                    background-color: #efefef;
                     .dic-basic{
                         width: 100%;
+                        background-color: white;
+                        padding:30rpx 20rpx 0;
+                        margin-bottom: 30rpx;
                         .dic-basic-info{
                             .dic-basic-voice{
                                 .voice-item{
