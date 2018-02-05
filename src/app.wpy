@@ -34,9 +34,7 @@
     font-weight: normal;
     color: #0c9;
   }
-  @function rpx($value) {
-      @return $value * 1rpx;
-  }
+
 </style>
 
 <script>
