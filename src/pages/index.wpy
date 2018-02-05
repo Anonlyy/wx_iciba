@@ -59,10 +59,14 @@
                                     </view>
                                 </repeat>
                             </view>
-                            <view class="dic-plural">
-                                <view class="dic-plural-title">
+                            <view class="dic-plural" wx:if="{{baseInfo.exchange.length>=1}}">
+                                <view class="dic-plural-title clearfix">
                                     <repeat for="{{baseInfo.exchange}}" key="index" index="index" item="item">
-                                        <view class="plural-item"><text>{{item.name}}:</text> <text>{{item.value}}</text></view>
+                                        <view class="plural-item {{(index>=1&&!exchangeListShow)?'hide':'show'}}" @tap="listShow">
+                                          <text>{{item.name}}:</text>
+                                          <text>{{item.value}}</text>
+                                          <image wx:if="{{baseInfo.exchange.length>1}}" src="//cdn.iciba.com/www/img/m/down.png"></image>
+                                        </view>
                                     </repeat>
                                 </view>
                             </view>
@@ -75,11 +79,45 @@
                             <view class="dic-item">
                                 <view class="dic-item-title">
                                     网络释义
+                                    <image src="//cdn.iciba.com/www/img/m/down.png"></image>
+
                                 </view>
                                 <view class="dic-item-content">
-                                    <view class="title">常用词组</view>
+                                    <view class="item-title">常用词组</view>
+                                    <view class="item-content">
+                                      <repeat for="{{detailsInfo.netmean.PerfectNetExp}}" key="index" index="index" item="item">
+                                        <view class="li">
+                                          <view class="dic-order">{{index+1}}</view>
+                                          <view class="dic-info">
+                                            <view class="dic-net-en">{{item.exp}}</view>
+                                            <view class="dic-net-info">{{item.abs}}</view>
+                                          </view>
+                                        </view>
+                                      </repeat>
+
+                                    </view>
                                 </view>
 
+
+                              <view class="dic-item-content">
+                                <view class="item-title">相关词条</view>
+                                <view class="item-content">
+                                  <repeat for="{{detailsInfo.netmean.RelatedPhrase}}" key="index" index="index" item="item">
+                                    <view class="li">
+                                      <view class="dic-order">{{index+1}}</view>
+                                      <view class="dic-info">
+                                        <view class="dic-net-en">{{item.list[0].key}}</view>
+                                        <view class="dic-net-cn">{{item.list[0].exp}}</view>
+                                        <view class="dic-net-info">{{item.list[0].abs}}</view>
+                                      </view>
+
+
+                                    </view>
+                                  </repeat>
+
+
+                                </view>
+                              </view>
                             </view>
                         </view>
                     </view>
@@ -120,7 +158,8 @@
                 phrase:{},//词组搭配
                 jushi:{},//例句
             },
-            exchangeFilter: exchangeFilter
+            exchangeFilter: exchangeFilter,
+            exchangeListShow:false
         }
 
         methods = {
@@ -146,6 +185,9 @@
                 }
                 _this.getWordMeanContent(_this.inputValue);
                 _this.isSearchResult = true;
+            },
+            listShow(){
+                if(this.baseInfo.exchange.length>1){this.exchangeListShow=!this.exchangeListShow;}
             }
         }
 
@@ -172,6 +214,9 @@
             let params = {
                 word: value
             }
+            wepy.showLoading({
+              title: '加载中',
+            })
             let res = await getWordMean(params);
 
             for (let item in res.data.baesInfo.exchange) {
@@ -202,6 +247,8 @@
                 detailsInfo:_this.detailsInfo,
                 baseInfo:_this.baseInfo
             })
+          wepy.hideLoading();
+
         }
 
         events = {}
@@ -215,6 +262,14 @@
 
         onLoad() {
             let self = this;
+//            wx.showLoading({
+//              title: '加载中',
+//            })
+//
+//            setTimeout(function(){
+//              wx.hideLoading()
+//            },2000)
+//            wx.hideTabBar({aniamtion:true});
             this.$parent.getUserInfo(function (userInfo) {
                 if (userInfo) {
                     self.userInfo = userInfo
@@ -310,9 +365,11 @@
             .container-body {
                 height: 87%;
                 width: 100%;
+                /*background-color: #F5F5F5;*/
                 .interface-content {
                     height: 100%;
                     width: 100%;
+                    /*background-color: white;*/
                     .list-item {
                         color: white;
                         width: 100%;
@@ -341,6 +398,16 @@
                         background-color: white;
                         padding:30rpx 20rpx 0;
                         margin-bottom: 30rpx;
+                        position: relative;
+                        &::after{
+                          content: '';
+                          position: absolute;
+                          bottom:-20rpx;
+                          left: 0;
+                          height: 20rpx;
+                          width: 100%;
+                          background-color: #eeeeee;
+                        }
                         .dic-basic-info{
                             .dic-basic-voice{
                                 .voice-item{
@@ -359,7 +426,7 @@
                                 .explain-item{
                                     display: table;
                                     width: 100%;
-                                    font-size: 34rpx;
+                                    font-size: 33rpx;
                                     .item-key{
                                         display: table-cell;
                                         vertical-align: top;
@@ -381,20 +448,99 @@
                             }
                             .dic-plural{
                                 .dic-plural-title{
+                                  padding-bottom:30rpx;
                                     .plural-item{
-                                        height:40rpx;
-                                        line-height:40rpx;
-                                        margin-right:40rpx;
-                                        display: inline-block;
-                                        font-size: 33rpx;
+                                        height:50rpx;
+                                        position: relative;
+                                        line-height:50rpx;
+                                        display: block;
+                                        font-size: 35rpx;
                                         text{
                                             display: inline-block;
                                             margin-right: 30rpx;
+                                        }
+                                        image{
+                                          width: 30rpx;
+                                          height:15rpx;
+                                          position: absolute;
+                                          right: 30rpx;
+                                          top: 50%;
+                                          transform: translateY(-50%);
                                         }
                                     }
                                 }
                             }
                         }
+                    }
+                    .dic-content{
+                      background-color: white;
+                      .dic-list{
+                        .dic-item{
+                          padding-left:40rpx;
+                          padding-right:20rpx;
+                          .dic-item-title{
+                            border-bottom:1px solid #E7E7E7;
+                            height:100rpx;
+                            color: #0090ff;
+                            font-weight: normal;
+                            font-size: 33rpx;
+                            position: relative;
+                            /*padding-left:50rpx;*/
+                            line-height:100rpx;
+                            image{
+                              width: 30rpx;
+                              height:15rpx;
+                              position: absolute;
+                              right: 30rpx;
+                              top: 50%;
+                              transform: translateY(-50%);
+                            }
+                          }
+                          .dic-item-content{
+                            margin-bottom:20rpx;
+                            .item-title{
+                              height:70rpx;
+                              line-height:70rpx;
+                              font-size: 33rpx;
+                              font-weight: bold;
+                              color: #888;
+                            }
+                            .item-content{
+                              .li{
+                                margin-top:10rpx;
+                                position: relative;
+                                .dic-order{
+                                  position: absolute;
+                                  left: 0;
+                                  display: inline-block;
+                                  border: 1px solid #999;
+                                  border-radius: 50%;
+                                  width: 38rpx;
+                                  text-align: center;
+                                  height:38rpx;
+                                  font-weight: normal;
+                                  color: #999;
+                                  line-height:38rpx;
+                                }
+                                .dic-info{
+                                  margin-left: 45rpx;
+                                  .dic-net-en,.dic-net-cn{
+                                    height:45rpx;
+                                    margin-bottom:20rpx;
+                                    line-height:45rpx;
+                                    font-size: 33rpx;
+                                    font-weight: normal;
+                                  }
+                                  .dic-net-info{
+                                    color: #888;
+                                    font-size: 30rpx;
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                 }
             }
