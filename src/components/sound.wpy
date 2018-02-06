@@ -1,0 +1,58 @@
+<template>
+    <view class="sound-box">
+      <image class="ic-sound" src="//cdn.iciba.com/www/img/m/sound.png" @tap="playSound"></image>
+      <!--<image class="ic-sound" src="http://cdn.iciba.com/www/img/m/sound-play.gif"></image>-->
+    </view>
+</template>
+<script>
+
+    import wepy from 'wepy'
+
+    // export default class MyPage extends wepy.page {
+    export default class Sound extends wepy.component {
+        components = {};
+
+        data = {
+
+        };
+        methods = {
+          playSound(){
+            console.log(this.soundData);
+          }
+        };
+
+        props = {
+          soundData:{
+              type:String,
+              default: 'null',
+              twoWay: true
+          }
+        }
+        events = {
+
+        };
+
+
+        // Other properties
+      onLoad(){
+        console.log(this.soundData);
+      }
+    }
+
+</script>
+
+<style lang="scss" rel="stylesheet/scss">
+  @function rpx($value) {
+    @return $value * 1rpx;
+  }
+
+  .sound-box{
+    display: inline-block;
+  }
+  .ic-sound{
+    width: rpx(30);
+    height:rpx(30);
+    display: inline-block;
+    vertical-align: middle;
+  }
+</style>

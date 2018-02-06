@@ -42,9 +42,11 @@
                             <view class="dic-basic-voice">
                                 <view class="voice-item">
                                     英 [{{baseInfo.symbols.ph_en}}]
+                                  <sound :soundData.sync="baseInfo.symbols.ph_en_mp3"></sound>
                                 </view>
                                 <view class="voice-item">
                                     美 [{{baseInfo.symbols.ph_am}}]
+                                  <sound  :soundData.sync="baseInfo.symbols.ph_am_mp3"></sound>
                                 </view>
                             </view>
                             <view class="dic-basic-explain">
@@ -145,9 +147,9 @@
                                 <view class="dic-item-title">
                                     同反义词<image src="//cdn.iciba.com/www/img/m/down.png"></image>
                                 </view>
-                                <view class="dic-item-content" >
+                                <view class="dic-item-content hide" >
                                     <view class="item-title">同义词</view>
-                                    <view class="item-content">
+                                    <view class="item-content" >
                                         <repeat for="{{detailsInfo.synonym}}" key="index" index="index" item="item">
                                             <view class="li">
                                                 <view class="dic-explain">{{item.part_name}}</view>
@@ -165,7 +167,7 @@
                                     </view>
                                 </view>
 
-                                <view class="dic-item-content" >
+                                <view class="dic-item-content hide">
                                     <view class="item-title">反义词</view>
                                     <view class="item-content">
                                         <repeat for="{{detailsInfo.antonym}}" key="index" index="index" item="item">
@@ -175,7 +177,7 @@
                                                     <view class="dic-info">
                                                         <view class="dic-net-en">{{meansIndex+1}}.   {{meansItem.word_mean}}</view>
                                                         <repeat for="{{meansItem.cis}}"  index="wordsIndex"  item="wordItem">
-                                                            <text wx:if="{{wordsIndex<=5}}" class="dic-net-info">{{wordItem}} </text>
+                                                            <text wx:if="{{wordsIndex<=5}}" class="dic-net-info">{{wordItem}} ,</text>
                                                         </repeat>
                                                     </view>
                                                 </repeat>
@@ -186,10 +188,33 @@
                                 </view>
                             </view>
                             <!--同反义词-->
+                            <!--英英词典-->
+                            <view class="dic-item sentence-item" style="padding-right: 0;" >
+                              <view class="dic-item-title">
+                                英英释义<image src="//cdn.iciba.com/www/img/m/down.png"></image>
+                              </view>
+                              <repeat for="{{detailsInfo.ee_mean}}" key="index" index="index" item="item">
+                              <view class="dic-item-content">
+                                <view class="item-title">{{item.part_name}}</view>
+                                <view class="item-content">
+                                  <repeat for="{{item.means}}" key="index" index="meansIndex" item="meansItem">
+                                    <view class="li">
+                                      <view class="dic-info">
+                                        <view class="dic-net-en">{{meansItem.word_mean}}</view>
+                                        <repeat for="{{meansItem.sentences}}" index="wordsIndex" item="wordsItem">
+                                          <view class="dic-net-info">{{wordsItem.sentence}}</view>
+                                        </repeat>
+                                      </view>
+                                    </view>
+
+                                  </repeat>
+                                </view>
+                              </view>
+                              </repeat>
+                              </view>
+                            <!--英英词典-->
                         </view>
                     </view>
-
-
                     <!--单词详义-->
                 </view>
 
@@ -202,12 +227,14 @@
     import wepy from 'wepy';
     import {getInterface, getWordMean} from '../api/api';
     import {exchangeFilter} from '../api/config'
-
+    import Sound from '../components/sound'
     export default class Index extends wepy.page {
         config = {
             navigationBarTitleText: '主页'
         }
-        components = {}
+        components = {
+          sound:Sound
+        }
 
         data = {
             isFocus: false,
@@ -228,7 +255,12 @@
                 jushi:{},//例句
             },
             exchangeFilter: exchangeFilter,
-            exchangeListShow:false
+            exchangeListShow:false,
+          //music数据
+//          soundData:{
+//              flag:false,
+//              src:'null'
+//          },
         }
 
         methods = {
@@ -257,6 +289,16 @@
             },
             listShow(){
                 if(this.baseInfo.exchange.length>1){this.exchangeListShow=!this.exchangeListShow;}
+            },
+            playSound(){
+//              this.soundData = {
+//                flag:true,
+//                src:'xxx'
+//              }
+              this.setData({
+                soundData:true
+              });
+
             }
         }
 
@@ -268,9 +310,8 @@
             }
             _this.result = [];
             let res = await getInterface(params);
-            _this.setData({
-                result: res.data.message
-            })
+            this.result = res.data.message;
+            _this.$apply();
         }
 
 
@@ -311,17 +352,14 @@
                 phrase:res.data.phrase?res.data.phrase:{},
                 jushi:res.data.jushi?res.data.jushi:{},
             }
-            console.log(_this.detailsInfo);
 
-            _this.setData({
-                detailsInfo:_this.detailsInfo,
-                baseInfo:_this.baseInfo
-            })
-          wepy.hideLoading();
-
+            _this.$apply();
+            console.log(_this.baseInfo.symbols.ph_en_mp3);
+            wepy.hideLoading();
         }
 
-        events = {}
+        events = {
+        }
 
         mixins = []
         watch = {
@@ -340,6 +378,10 @@
 //              wx.hideLoading()
 //            },2000)
 //            wx.hideTabBar({aniamtion:true});
+          this.soundData = {
+                flag:true,
+                src:'xxx'
+              }
             this.$parent.getUserInfo(function (userInfo) {
                 if (userInfo) {
                     self.userInfo = userInfo
@@ -489,6 +531,7 @@
                                     font-size: rpx(35);
                                     font-weight: normal;
                                     color: #333333;
+
                                 }
                             }
                             .dic-basic-explain{
@@ -647,7 +690,17 @@
                               padding-left:rpx(42);
                             }
                           .dic-item-content {
-                              padding-left:rpx(42);
+                            padding-left:rpx(42);
+                            .item-title{
+                              display: inline-block;
+                              border:1px solid #b0b0b0;
+                              height:rpx(60);
+                              line-height:rpx(60);
+                              border-radius: 10%;
+                              margin:rpx(20) 0 rpx(10);
+                              padding:0 rpx(10);
+                              font-weight: normal;
+                            }
                             .item-content {
                               .li {
                                   margin-bottom: rpx(10);
