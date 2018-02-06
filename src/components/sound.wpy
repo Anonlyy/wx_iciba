@@ -1,24 +1,41 @@
 <template>
-    <view class="sound-box">
-      <image class="ic-sound" src="//cdn.iciba.com/www/img/m/sound.png" @tap="playSound"></image>
-      <!--<image class="ic-sound" src="http://cdn.iciba.com/www/img/m/sound-play.gif"></image>-->
+    <view class="sound-box" @tap="playSound">
+      <image class="ic-sound {{isPlaying?'ic-sound-playing':''}}" src="{{isPlaying?'//cdn.iciba.com/www/img/m/sound-play.gif':'//cdn.iciba.com/www/img/m/sound.png'}}" ></image>
+      <!--<image class="ic-sound" ></image>-->
+
+
     </view>
 </template>
 <script>
 
     import wepy from 'wepy'
-
+    const audioCtx = wx.createInnerAudioContext();
     // export default class MyPage extends wepy.page {
     export default class Sound extends wepy.component {
         components = {};
 
         data = {
-
+          src:'',
+          isPlaying:false
         };
         methods = {
           playSound(){
-            console.log(this.soundData);
-          }
+            audioCtx.autoplay = true;
+            audioCtx.src = this.src;
+            audioCtx.onPlay(() => {
+              console.log('开始播放');
+              this.isPlaying = true;
+              this.$apply();
+            });
+            audioCtx.onEnded(()=>{
+              console.log('结束播放');
+              this.isPlaying = false;
+              this.$apply();
+            });
+            audioCtx.onError((res) => {
+              console.log(res.errCode,res.errMsg);
+            });
+          },
         };
 
         props = {
@@ -29,13 +46,19 @@
           }
         }
         events = {
-
+          'words_mp3':($event)=>{
+            console.log($event);
+            this.src = $event.word_mp3.am_mp3;
+          }
         };
-
-
         // Other properties
-      onLoad(){
-        console.log(this.soundData);
+      onReady(){
+        // 使用 wx.createAudioContext 获取 audio 上下文 context
+
+//        this.audioCtx.onEnded((res)=>{
+//          console.log(this.isPlaying);
+//          this.isPlaying = false;
+//        })
       }
     }
 

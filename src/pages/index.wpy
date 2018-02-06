@@ -39,14 +39,15 @@
                     <!--基本信息-->
                     <view class="dic-basic">
                         <view class="dic-basic-info">
-                            <view class="dic-basic-voice">
-                                <view class="voice-item">
+                            <view class="dic-basic-voice ">
+                                <view class="voice-item"wx:if="{{baseInfo.symbols.ph_en}}">
                                     英 [{{baseInfo.symbols.ph_en}}]
-                                  <sound :soundData.sync="baseInfo.symbols.ph_en_mp3"></sound>
+                                  <sound id="en-sound"></sound>
                                 </view>
-                                <view class="voice-item">
+                                <view class="voice-item"  wx:if="{{baseInfo.symbols.ph_am}}">
                                     美 [{{baseInfo.symbols.ph_am}}]
-                                  <sound  :soundData.sync="baseInfo.symbols.ph_am_mp3"></sound>
+                                  <sound id="am-sound"></sound>
+                                  <!--<sound  :soundData.sync="baseInfo.symbols.ph_am_mp3"></sound>-->
                                 </view>
                             </view>
                             <view class="dic-basic-explain">
@@ -256,11 +257,14 @@
             },
             exchangeFilter: exchangeFilter,
             exchangeListShow:false,
-          //music数据
-//          soundData:{
-//              flag:false,
-//              src:'null'
-//          },
+            //music数据
+            mp3SrcList:{
+              word_mp3:{
+                en_mp3:'',
+                am_mp3:''
+              },
+              sentence_mp3:[]
+            }
         }
 
         methods = {
@@ -290,16 +294,6 @@
             listShow(){
                 if(this.baseInfo.exchange.length>1){this.exchangeListShow=!this.exchangeListShow;}
             },
-            playSound(){
-//              this.soundData = {
-//                flag:true,
-//                src:'xxx'
-//              }
-              this.setData({
-                soundData:true
-              });
-
-            }
         }
 
         //获取联想单词
@@ -352,9 +346,12 @@
                 phrase:res.data.phrase?res.data.phrase:{},
                 jushi:res.data.jushi?res.data.jushi:{},
             }
-
+            _this.mp3SrcList.word_mp3={
+              en_mp3:_this.baseInfo.symbols.ph_en_mp3,
+              am_mp3:_this.baseInfo.symbols.ph_am_mp3
+            }
+            _this.$broadcast('words_mp3',_this.mp3SrcList);
             _this.$apply();
-            console.log(_this.baseInfo.symbols.ph_en_mp3);
             wepy.hideLoading();
         }
 
@@ -365,7 +362,7 @@
         watch = {
             inputValue(newValue){
                 this.getInterfaceContent(newValue);
-            }
+            },
         }
 
         onLoad() {
