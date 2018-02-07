@@ -1,6 +1,6 @@
 <template>
     <view class="sound-box" @tap="playSound">
-      <image class="ic-sound {{isPlaying?'ic-sound-playing':''}}" src="{{isPlaying?'//cdn.iciba.com/www/img/m/sound-play.gif':'//cdn.iciba.com/www/img/m/sound.png'}}" ></image>
+      <image class="ic-sound {{isPlaying?'ic-sound-playing':''}}" src="{{isPlaying?'https://cdn.iciba.com/www/img/m/sound-play.gif':'https://cdn.iciba.com/www/img/m/sound.png'}}" ></image>
     </view>
 </template>
 <script>

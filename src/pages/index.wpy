@@ -1,17 +1,17 @@
 <template>
     <view id="app">
-        <image class="bg" src="//cdn.iciba.com/www/img/m/bg1.jpg"></image>
+        <image class="bg" src="https://cdn.iciba.com/www/img/m/bg1.jpg"></image>
         <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult?'bg-search-result':''}}]"></view>
         <view class="container">
             <view class="container-header {{isSearchResult?'bg-search':''}}">
                 <view class="search-main {{ isFocus ?'input-focus':''}}">
                     <view class="search-main-box">
-                        <view class="input-logo">
-                            <image src="//cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
+                        <view class="input-logo {{ isFocus ?'image-focus':''}}" >
+                            <image src="https://cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
                         </view>
                         <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus" @input="changeInput"/>
                         <view class="btn-search" @tap="getWordMean">
-                            <image src="//cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
+                            <image src="https://cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
                         </view>
                     </view>
 
@@ -66,7 +66,7 @@
                                         <view class="plural-item {{(index>=1&&!exchangeListShow)?'hide':'show'}}" @tap="listShow">
                                           <text>{{item.name}}:</text>
                                           <text>{{item.value}}</text>
-                                          <image wx:if="{{baseInfo.exchange.length>1&&index==0}}" src="//cdn.iciba.com/www/img/m/down.png"></image>
+                                          <image wx:if="{{baseInfo.exchange.length>1&&index==0}}" src="https://cdn.iciba.com/www/img/m/down.png"></image>
                                         </view>
                                     </repeat>
                                 </view>
@@ -121,7 +121,7 @@
                             <!--双语例句-->
                             <view class="dic-item sentence-item">
                                 <view class="dic-item-title">
-                                    双语例句<image src="//cdn.iciba.com/www/img/m/down.png"></image>
+                                    双语例句<image src="https://cdn.iciba.com/www/img/m/down.png"></image>
                                 </view>
                                 <view class="dic-item-content ">
                                     <view class="item-content">
@@ -191,7 +191,7 @@
                             <!--英英词典-->
                             <view class="dic-item sentence-item" style="padding-right: 0;" >
                               <view class="dic-item-title">
-                                英英释义<image src="//cdn.iciba.com/www/img/m/down.png"></image>
+                                英英释义<image src="https://cdn.iciba.com/www/img/m/down.png"></image>
                               </view>
                               <repeat for="{{detailsInfo.ee_mean}}" key="index" index="index" item="item">
                               <view class="dic-item-content hide">
@@ -444,12 +444,24 @@
                             width: 10%;
                             display: table-cell;
                             vertical-align: middle;
+                            overflow: hidden;
+                            transition: all .2s;
                             padding: 0 rpx(10) 0 rpx(15);
                             image {
+                                transition: all .2s;
                                 width: rpx(80);
                                 height: rpx(26);
                                 vertical-align: middle;
                             }
+                        }
+                        .image-focus{
+                          width: 0;
+                          padding: 0;
+                          image{
+                            width:0;
+                            height: 0;
+                            display: none;
+                          }
                         }
                         .btn-search {
                             display: table-cell;
@@ -466,10 +478,15 @@
                         }
                         .search-input {
                             width: 75%;
+                            transition: all .2s;
                             font-size: 14px;
                             display: table-cell;
                             padding-left: rpx(10);
                         }
+                        .image-focus+.search-input{
+                          width: 85%;
+                        }
+
                     }
                 }
                 .input-focus {
