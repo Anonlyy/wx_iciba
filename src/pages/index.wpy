@@ -9,8 +9,7 @@
                         <view class="input-logo">
                             <image src="//cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
                         </view>
-                        <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus"
-                               @input="changeInput"/>
+                        <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus" @input="changeInput"/>
                         <view class="btn-search" @tap="getWordMean">
                             <image src="//cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
                         </view>
@@ -39,15 +38,14 @@
                     <!--基本信息-->
                     <view class="dic-basic">
                         <view class="dic-basic-info">
-                            <view class="dic-basic-voice ">
+                            <view class="dic-basic-voice">
                                 <view class="voice-item"wx:if="{{baseInfo.symbols.ph_en}}">
                                     英 [{{baseInfo.symbols.ph_en}}]
-                                  <sound id="en-sound"></sound>
+                                  <en-sound :soundData.sync="word_mp3List" :index.sync="soundEn"></en-sound>
                                 </view>
                                 <view class="voice-item"  wx:if="{{baseInfo.symbols.ph_am}}">
                                     美 [{{baseInfo.symbols.ph_am}}]
-                                  <sound id="am-sound"></sound>
-                                  <!--<sound  :soundData.sync="baseInfo.symbols.ph_am_mp3"></sound>-->
+                                  <am-sound :soundData.sync="word_mp3List" :index.sync="soundAm"></am-sound>
                                 </view>
                             </view>
                             <view class="dic-basic-explain">
@@ -125,7 +123,7 @@
                                 <view class="dic-item-title">
                                     双语例句<image src="//cdn.iciba.com/www/img/m/down.png"></image>
                                 </view>
-                                <view class="dic-item-content hide">
+                                <view class="dic-item-content ">
                                     <view class="item-content">
                                         <repeat for="{{detailsInfo.sentence}}" key="index" index="index" item="item">
                                             <view class="li">
@@ -134,7 +132,8 @@
                                                     <view class="dic-net-en">{{item.Network_en}}</view>
                                                     <view class="dic-net-info">{{item.Network_cn}}</view>
                                                 </view>
-                                                <image class="ic-sound" src="//cdn.iciba.com/www/img/m/sound.png"></image>
+                                                <!--<image class="ic-sound" src="//cdn.iciba.com/www/img/m/sound.png"></image>-->
+                                                <sound id="en-sound" :soundData.sync="item"></sound>
                                                 <!--<image class="ic-sound" src="http://cdn.iciba.com/www/img/m/sound-play.gif"></image>-->
                                             </view>
                                         </repeat>
@@ -195,7 +194,7 @@
                                 英英释义<image src="//cdn.iciba.com/www/img/m/down.png"></image>
                               </view>
                               <repeat for="{{detailsInfo.ee_mean}}" key="index" index="index" item="item">
-                              <view class="dic-item-content">
+                              <view class="dic-item-content hide">
                                 <view class="item-title">{{item.part_name}}</view>
                                 <view class="item-content">
                                   <repeat for="{{item.means}}" key="index" index="meansIndex" item="meansItem">
@@ -234,7 +233,9 @@
             navigationBarTitleText: '主页'
         }
         components = {
-          sound:Sound
+          "en-sound":Sound, //单词
+          "am-sound":Sound, //单词
+          "sound":Sound //例句
         }
 
         data = {
@@ -258,13 +259,9 @@
             exchangeFilter: exchangeFilter,
             exchangeListShow:false,
             //music数据
-            mp3SrcList:{
-              word_mp3:{
-                en_mp3:'',
-                am_mp3:''
-              },
-              sentence_mp3:[]
-            }
+            word_mp3List:[],
+            soundEn:0,
+            soundAm:1,
         }
 
         methods = {
@@ -310,11 +307,23 @@
 
 
         async getWordMeanContent(value) {
+
             const _this = this;
+            //重置
             _this.baseInfo = {
-                exchange: [],
-                symbols: {}
+              exchange: [],
+              symbols: {}
             }
+            _this.detailsInfo = {
+              ee_mean:{},
+              sentence:{},
+              netmean:{},
+              synonym:{},
+              antonym:{},
+              phrase:{},
+              jushi:{},
+            }
+
             let params = {
                 word: value
             }
@@ -346,11 +355,8 @@
                 phrase:res.data.phrase?res.data.phrase:{},
                 jushi:res.data.jushi?res.data.jushi:{},
             }
-            _this.mp3SrcList.word_mp3={
-              en_mp3:_this.baseInfo.symbols.ph_en_mp3,
-              am_mp3:_this.baseInfo.symbols.ph_am_mp3
-            }
-            _this.$broadcast('words_mp3',_this.mp3SrcList);
+            _this.word_mp3List = [_this.baseInfo.symbols.ph_en_mp3,_this.baseInfo.symbols.ph_am_mp3];
+//            _this.$broadcast('words_mp3',_this.mp3SrcList);
             _this.$apply();
             wepy.hideLoading();
         }

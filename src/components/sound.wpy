@@ -1,9 +1,6 @@
 <template>
     <view class="sound-box" @tap="playSound">
       <image class="ic-sound {{isPlaying?'ic-sound-playing':''}}" src="{{isPlaying?'//cdn.iciba.com/www/img/m/sound-play.gif':'//cdn.iciba.com/www/img/m/sound.png'}}" ></image>
-      <!--<image class="ic-sound" ></image>-->
-
-
     </view>
 </template>
 <script>
@@ -15,13 +12,18 @@
         components = {};
 
         data = {
-          src:'',
           isPlaying:false
         };
         methods = {
           playSound(){
             audioCtx.autoplay = true;
-            audioCtx.src = this.src;
+            if(this.index<0){
+              audioCtx.src = this.soundData.tts_mp3;
+            }
+            else{
+              console.log(this.soundData,this.index)
+              audioCtx.src = this.soundData[this.index];
+            }
             audioCtx.onPlay(() => {
               console.log('开始播放');
               this.isPlaying = true;
@@ -40,9 +42,14 @@
 
         props = {
           soundData:{
-              type:String,
-              default: 'null',
-              twoWay: true
+            type:Array,
+            default:[],
+            twoWay:true
+          },
+          index:{
+            type:Number,
+            default:-1,
+            twoWay:true
           }
         }
         events = {
@@ -52,7 +59,8 @@
           }
         };
         // Other properties
-      onReady(){
+      onLoad(){
+        console.log(this.soundData)
         // 使用 wx.createAudioContext 获取 audio 上下文 context
 
 //        this.audioCtx.onEnded((res)=>{
