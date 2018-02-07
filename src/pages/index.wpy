@@ -63,7 +63,7 @@
                             <view class="dic-plural" wx:if="{{baseInfo.exchange.length>=1}}">
                                 <view class="dic-plural-title clearfix">
                                     <repeat for="{{baseInfo.exchange}}" key="index" index="index" item="item">
-                                        <view class="plural-item {{(index>=1&&!exchangeListShow)?'hide':'show'}}" @tap="listShow">
+                                        <view class="plural-item {{(index>=1&&!accordionListShow[0])?'hide':'show'}}" @tap="accordionItemShow(0)">
                                           <text>{{item.name}}:</text>
                                           <text>{{item.value}}</text>
                                           <image wx:if="{{baseInfo.exchange.length>1&&index==0}}" src="https://cdn.iciba.com/www/img/m/down.png"></image>
@@ -78,11 +78,11 @@
                     <view class="dic-content">
                         <view class="dic-list">
                             <!--网络释义-->
-                            <view class="dic-item">
-                                <view class="dic-item-title">
-                                    网络释义<image src="//cdn.iciba.com/www/img/m/down.png"></image>
+                            <view class="dic-item" wx:if="{{detailsInfo.netmean.PerfectNetExp}}">
+                                <view class="dic-item-title"  @tap="accordionItemShow(1)">
+                                    网络释义<image src="//cdn.iciba.com/www/img/m/down.png" ></image>
                                 </view>
-                                <view class="dic-item-content hide" >
+                                <view class="dic-item-content {{!accordionListShow[1]?'hide':'show'}}" >
                                     <view class="item-title">常用词组</view>
                                     <view class="item-content">
                                       <repeat for="{{detailsInfo.netmean.PerfectNetExp}}" key="index" index="index" item="item">
@@ -97,7 +97,7 @@
 
                                     </view>
                                 </view>
-                                <view class="dic-item-content hide">
+                                <view class="dic-item-content {{!accordionListShow[1]?'hide':'show'}}">
                                 <view class="item-title">相关词条</view>
                                 <view class="item-content">
                                   <repeat for="{{detailsInfo.netmean.RelatedPhrase}}" key="index" index="index" item="item">
@@ -108,22 +108,18 @@
                                         <view class="dic-net-cn">{{item.list[0].exp}}</view>
                                         <view class="dic-net-info">{{item.list[0].abs}}</view>
                                       </view>
-
-
                                     </view>
                                   </repeat>
-
-
                                 </view>
                               </view>
                             </view>
                             <!--网络释义-->
                             <!--双语例句-->
-                            <view class="dic-item sentence-item">
-                                <view class="dic-item-title">
+                            <view class="dic-item sentence-item"  wx:if="{{detailsInfo.sentence[0].Network_en}}">
+                                <view class="dic-item-title"  @tap="accordionItemShow(2)">
                                     双语例句<image src="https://cdn.iciba.com/www/img/m/down.png"></image>
                                 </view>
-                                <view class="dic-item-content ">
+                                <view class="dic-item-content {{!accordionListShow[2]?'hide':'show'}}">
                                     <view class="item-content">
                                         <repeat for="{{detailsInfo.sentence}}" key="index" index="index" item="item">
                                             <view class="li">
@@ -132,9 +128,7 @@
                                                     <view class="dic-net-en">{{item.Network_en}}</view>
                                                     <view class="dic-net-info">{{item.Network_cn}}</view>
                                                 </view>
-                                                <!--<image class="ic-sound" src="//cdn.iciba.com/www/img/m/sound.png"></image>-->
                                                 <sound id="en-sound" :soundData.sync="item"></sound>
-                                                <!--<image class="ic-sound" src="http://cdn.iciba.com/www/img/m/sound-play.gif"></image>-->
                                             </view>
                                         </repeat>
 
@@ -143,13 +137,13 @@
                             </view>
                             <!--双语例句-->
                             <!--同反义词-->
-                            <view class="dic-item antony-item">
-                                <view class="dic-item-title">
-                                    同反义词<image src="//cdn.iciba.com/www/img/m/down.png"></image>
+                            <view class="dic-item antony-item" wx:if="{{detailsInfo.synonym[0].part_name||detailsInfo.antonym[0].part_name}}">
+                                <view class="dic-item-title"  @tap="accordionItemShow(3)">
+                                    同反义词<image src="https://cdn.iciba.com/www/img/m/down.png"></image>
                                 </view>
-                                <view class="dic-item-content hide" >
+                                <view class="dic-item-content {{!accordionListShow[3]?'hide':'show'}}" wx:if="{{detailsInfo.synonym[0].part_name}}">
                                     <view class="item-title">同义词</view>
-                                    <view class="item-content" >
+                                    <view class="item-content">
                                         <repeat for="{{detailsInfo.synonym}}" key="index" index="index" item="item">
                                             <view class="li">
                                                 <view class="dic-explain">{{item.part_name}}</view>
@@ -167,7 +161,7 @@
                                     </view>
                                 </view>
 
-                                <view class="dic-item-content hide">
+                                <view class="dic-item-content {{!accordionListShow[3]?'hide':'show'}}" wx:if="{{detailsInfo.antonym[0].part_name}}">
                                     <view class="item-title">反义词</view>
                                     <view class="item-content">
                                         <repeat for="{{detailsInfo.antonym}}" key="index" index="index" item="item">
@@ -189,12 +183,12 @@
                             </view>
                             <!--同反义词-->
                             <!--英英词典-->
-                            <view class="dic-item sentence-item" style="padding-right: 0;" >
-                              <view class="dic-item-title">
+                            <view class="dic-item sentence-item" wx:if="{{detailsInfo.ee_mean[0].part_name}}">
+                              <view class="dic-item-title"  @tap="accordionItemShow(4)">
                                 英英释义<image src="https://cdn.iciba.com/www/img/m/down.png"></image>
                               </view>
                               <repeat for="{{detailsInfo.ee_mean}}" key="index" index="index" item="item">
-                              <view class="dic-item-content hide">
+                              <view class="dic-item-content {{!accordionListShow[4]?'hide':'show'}}">
                                 <view class="item-title">{{item.part_name}}</view>
                                 <view class="item-content">
                                   <repeat for="{{item.means}}" key="index" index="meansIndex" item="meansItem">
@@ -257,7 +251,7 @@
                 jushi:{},//例句
             },
             exchangeFilter: exchangeFilter,
-            exchangeListShow:false,
+            accordionListShow:[false,false,false,false,false],//控制所有折叠面板
             //music数据
             word_mp3List:[],
             soundEn:0,
@@ -288,8 +282,11 @@
                 _this.getWordMeanContent(_this.inputValue);
                 _this.isSearchResult = true;
             },
-            listShow(){
-                if(this.baseInfo.exchange.length>1){this.exchangeListShow=!this.exchangeListShow;}
+            accordionItemShow(index){
+                this.accordionListShow[index] = !this.accordionListShow[index];
+                console.log(index);
+                this.$apply();
+//                if(this.baseInfo.exchange.length>1){this.exchangeListShow=!this.exchangeListShow;}
             },
         }
 
@@ -373,18 +370,7 @@
 
         onLoad() {
             let self = this;
-//            wx.showLoading({
-//              title: '加载中',
-//            })
-//
-//            setTimeout(function(){
-//              wx.hideLoading()
-//            },2000)
 //            wx.hideTabBar({aniamtion:true});
-          this.soundData = {
-                flag:true,
-                src:'xxx'
-              }
             this.$parent.getUserInfo(function (userInfo) {
                 if (userInfo) {
                     self.userInfo = userInfo
@@ -613,7 +599,7 @@
                       .dic-list{
                         .dic-item{
                           padding-left:rpx(42);
-                          padding-right:rpx(20);
+                          padding-right:rpx(30);
                           .dic-item-title{
                             border-bottom:1px solid #E7E7E7;
                             height:rpx(100);
@@ -627,7 +613,7 @@
                               width: rpx(30);
                               height:rpx(15);
                               position: absolute;
-                              right: rpx(15);
+                              right: rpx(20);
                               top: 50%;
                               transform: translateY(-50%);
                             }

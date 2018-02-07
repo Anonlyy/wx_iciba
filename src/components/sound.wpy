@@ -7,7 +7,6 @@
 
     import wepy from 'wepy'
     const audioCtx = wx.createInnerAudioContext();
-    // export default class MyPage extends wepy.page {
     export default class Sound extends wepy.component {
         components = {};
 
@@ -21,16 +20,15 @@
               audioCtx.src = this.soundData.tts_mp3;
             }
             else{
-              console.log(this.soundData,this.index)
               audioCtx.src = this.soundData[this.index];
             }
             audioCtx.onPlay(() => {
-              console.log('开始播放');
+//              console.log('开始播放');
               this.isPlaying = true;
               this.$apply();
             });
             audioCtx.onEnded(()=>{
-              console.log('结束播放');
+//              console.log('结束播放');
               this.isPlaying = false;
               this.$apply();
             });
@@ -60,13 +58,7 @@
         };
         // Other properties
       onLoad(){
-        console.log(this.soundData)
-        // 使用 wx.createAudioContext 获取 audio 上下文 context
-
-//        this.audioCtx.onEnded((res)=>{
-//          console.log(this.isPlaying);
-//          this.isPlaying = false;
-//        })
+//        console.log(this.soundData)
       }
     }
 
