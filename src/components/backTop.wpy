@@ -1,0 +1,51 @@
+<template>
+    <view id="fixed-btn-bar">
+        <view class="btn-backTop" @tap="backTop">
+            <image src="https://cdn.iciba.com/www/img/m/gotop.png"></image>
+        </view>
+    </view>
+</template>
+<script>
+
+    import wepy from 'wepy'
+
+    // export default class MyPage extends wepy.page {
+    export default class BackTop extends wepy.component {
+        components = {};
+
+        config = {
+            navigationBarTitleText: ''
+        };
+
+        data = {};
+        methods = {
+            backTop(){
+                wepy.pageScrollTo({
+                    scrollTop: 0,
+                    duration: 300
+                })
+            }
+        };
+
+        events = {};
+        // Other properties
+    }
+</script>
+
+<style lang="scss" rel="stylesheet/scss">
+    @function rpx($value) {
+        @return $value * 1rpx;
+    }
+    #fixed-btn-bar{
+        position: fixed;
+        right: rpx(40);
+        bottom: rpx(40);
+        z-index:1000;
+        .btn-backTop{
+            image{
+                width:rpx(80);
+                height:rpx(80);
+            }
+        }
+    }
+</style>

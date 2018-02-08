@@ -30,6 +30,16 @@
   .show{
     display: block!important;
   }
+  .fullHeightShow{
+      height:auto;
+      transition: height .3s;
+  }
+  .fullHeightHide{
+      font-size: 0;
+      height:0!important;
+      transition: height .3s;
+      overflow: hidden;
+  }
   .fw{
     font-weight: normal;
     color: #0c9;

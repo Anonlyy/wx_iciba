@@ -63,7 +63,7 @@
                             <view class="dic-plural" wx:if="{{baseInfo.exchange.length>=1}}">
                                 <view class="dic-plural-title clearfix">
                                     <repeat for="{{baseInfo.exchange}}" key="index" index="index" item="item">
-                                        <view class="plural-item {{(index>=1&&!accordionListShow[0])?'hide':'show'}}" @tap="accordionItemShow(0)">
+                                        <view class="plural-item {{(index>=1&&!accordionListShow[0])?'fullHeightHide':'fullHeightShow'}}" @tap="accordionItemShow(0)">
                                           <text>{{item.name}}:</text>
                                           <text>{{item.value}}</text>
                                           <image wx:if="{{baseInfo.exchange.length>1&&index==0}}" src="https://cdn.iciba.com/www/img/m/down.png"></image>
@@ -214,14 +214,16 @@
 
             </view>
         </view>
+        <back-top></back-top>
     </view>
 </template>
 
 <script>
     import wepy from 'wepy';
     import {getInterface, getWordMean} from '../api/api';
-    import {exchangeFilter} from '../api/config'
-    import Sound from '../components/sound'
+    import {exchangeFilter} from '../api/config';
+    import Sound from '../components/sound';
+    import BackTop from '../components/backTop'
     export default class Index extends wepy.page {
         config = {
             navigationBarTitleText: '主页'
@@ -229,7 +231,8 @@
         components = {
           "en-sound":Sound, //单词
           "am-sound":Sound, //单词
-          "sound":Sound //例句
+          "sound":Sound,//例句
+           "back-top":BackTop
         }
 
         data = {
@@ -284,9 +287,7 @@
             },
             accordionItemShow(index){
                 this.accordionListShow[index] = !this.accordionListShow[index];
-                console.log(index);
                 this.$apply();
-//                if(this.baseInfo.exchange.length>1){this.exchangeListShow=!this.exchangeListShow;}
             },
         }
 
@@ -691,10 +692,6 @@
                             }
                         }
                         .antony-item{
-                            padding-left:0;
-                            .dic-item-title{
-                              padding-left:rpx(42);
-                            }
                           .dic-item-content {
                             padding-left:rpx(42);
                             .item-title{
