@@ -1,6 +1,6 @@
 <template>
     <view id="fixed-btn-bar">
-        <view class="btn-backTop" @tap="backTop">
+        <view class="btn-backTop {{isBackTopShow?'fadeIn':'fadeOut'}}" @tap="backTop">
             <image src="https://cdn.iciba.com/www/img/m/gotop.png"></image>
         </view>
     </view>
@@ -17,7 +17,8 @@
             navigationBarTitleText: ''
         };
 
-        data = {};
+        data = {
+        };
         methods = {
             backTop(){
                 wepy.pageScrollTo({
@@ -26,9 +27,16 @@
                 })
             }
         };
-
+        props = {
+          isBackTopShow:{
+            type:Boolean
+          }
+        }
         events = {};
-        // Other properties
+        watch  = {
+          isBackTopShow(value){
+          }
+        }
     }
 </script>
 
@@ -47,5 +55,27 @@
                 height:rpx(80);
             }
         }
+        .fadeIn{
+          animation: fadeIn .1s ease-in;
+          display: block;
+        }
+        .fadeOut{
+          animation: fadeOut .1s ease-in;
+          display: none;
+          transform: translateY(-200px);
+        }
     }
+
+
+    @keyframes fadeIn
+    {
+      from {opacity: 0;}
+      to {opacity: 1;  }
+    }
+    @keyframes fadeOut
+    {
+      from {opacity: 1;}
+      to {opacity: 0;  }
+    }
+
 </style>

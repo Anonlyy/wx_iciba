@@ -1,5 +1,6 @@
 <template>
     <view id="app">
+      <scroll-view class="scroll-view" scroll-y style="height:100%" upper-threshold="80" lower-threshold="80" @scrolltolower="getScrollOffset" @scrolltoupper="getScrollOffset" scroll-with-animation="true">
         <image class="bg" src="https://cdn.iciba.com/www/img/m/bg1.jpg"></image>
         <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult?'bg-search-result':''}}]"></view>
         <view class="container">
@@ -39,7 +40,7 @@
                     <view class="dic-basic">
                         <view class="dic-basic-info">
                             <view class="dic-basic-voice">
-                                <view class="voice-item"wx:if="{{baseInfo.symbols.ph_en}}">
+                                <view class="voice-item" wx:if="{{baseInfo.symbols.ph_en}}">
                                     英 [{{baseInfo.symbols.ph_en}}]
                                   <en-sound :soundData.sync="word_mp3List" :index.sync="soundEn"></en-sound>
                                 </view>
@@ -211,10 +212,10 @@
                     </view>
                     <!--单词详义-->
                 </view>
-
             </view>
         </view>
-        <back-top></back-top>
+        <back-top :isBackTopShow.sync="isBackTopShow"></back-top>
+      </scroll-view>
     </view>
 </template>
 
@@ -257,8 +258,9 @@
             accordionListShow:[false,false,false,false,false],//控制所有折叠面板
             //music数据
             word_mp3List:[],
-            soundEn:0,
-            soundAm:1,
+            soundEn:0, //英文
+            soundAm:1, //美文
+            isBackTopShow:false
         }
 
         methods = {
@@ -289,6 +291,13 @@
                 this.accordionListShow[index] = !this.accordionListShow[index];
                 this.$apply();
             },
+            getScrollOffset(event){
+              if(event.detail.direction=="bottom"){
+                this.isBackTopShow = true;
+                return;
+              }
+              this.isBackTopShow = false;
+            }
         }
 
         //获取联想单词
