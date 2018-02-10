@@ -307,9 +307,20 @@
                 word: value
             }
             _this.result = [];
-            let res = await getInterface(params);
-            this.result = res.data.message;
-            _this.$apply();
+            let res = await getInterface(params).then(res=>{
+              this.result = res.data.message;
+              _this.$apply();
+            }).catch(
+              error=>{
+                wx.showToast({
+                  title: '请求出错',
+                  image: '../assets/img/ic-error.png',
+                  duration: 2000
+                });
+                return;
+              }
+            );
+
         }
 
 

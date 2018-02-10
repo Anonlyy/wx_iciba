@@ -21,7 +21,8 @@
         };
         methods = {
             backTop(){
-                wepy.pageScrollTo({
+              console.log(111);
+                wx.pageScrollTo({
                     scrollTop: 0,
                     duration: 300
                 })
@@ -56,11 +57,11 @@
             }
         }
         .fadeIn{
-          animation: fadeIn .1s ease-in;
+          animation: fadeIn .3s ;
           display: block;
         }
         .fadeOut{
-          animation: fadeOut .1s ease-in;
+          animation: fadeOut .3s;
           display: none;
           transform: translateY(-200px);
         }
