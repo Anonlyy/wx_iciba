@@ -1,6 +1,6 @@
 <template>
     <view id="app">
-      <scroll-view class="scroll-view" scroll-y style="height:100%" upper-threshold="80" lower-threshold="80" @scrolltolower="getScrollOffset" @scrolltoupper="getScrollOffset" scroll-with-animation="true">
+      <scroll-view class="scroll-view" scroll-y style="height:100%" upper-threshold="80" lower-threshold="80" @scrolltolower="getScrollOffset" @scrolltoupper="getScrollOffset" scroll-top="{{scrollTop}}" scroll-with-animation="true">
         <image class="bg" src="https://cdn.iciba.com/www/img/m/bg1.jpg"></image>
         <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult?'bg-search-result':''}}]"></view>
         <view class="container">
@@ -260,7 +260,8 @@
             word_mp3List:[],
             soundEn:0, //英文
             soundAm:1, //美文
-            isBackTopShow:false
+            isBackTopShow:false,//回到顶部按钮显示隐藏
+            scrollTop:0,//滚动条位置数值
         }
 
         methods = {
@@ -380,6 +381,16 @@
         }
 
         events = {
+            "backTop"(value){
+                console.log('backtop',value);
+                if(value) {
+                    this.setData({
+                        scrollTop: 0
+                    })
+
+                    this.$apply();
+                }
+            }
         }
 
         mixins = []

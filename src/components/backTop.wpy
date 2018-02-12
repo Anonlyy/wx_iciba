@@ -21,11 +21,7 @@
         };
         methods = {
             backTop(){
-              console.log(111);
-                wx.pageScrollTo({
-                    scrollTop: 0,
-                    duration: 300
-                })
+              this.$emit('backTop',true);
             }
         };
         props = {
@@ -35,8 +31,6 @@
         }
         events = {};
         watch  = {
-          isBackTopShow(value){
-          }
         }
     }
 </script>
