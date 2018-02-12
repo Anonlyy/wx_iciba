@@ -45,7 +45,10 @@
         bottom: rpx(40);
         z-index:1000;
         .btn-backTop{
+            overflow: hidden;
             image{
+                box-shadow: rpx(5) rpx(5) rpx(10) rgba(0,0,0,.1);
+                border-radius: 50%;
                 width:rpx(80);
                 height:rpx(80);
             }

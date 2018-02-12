@@ -15,13 +15,12 @@
                             <image src="https://cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
                         </view>
                     </view>
-
                 </view>
             </view>
             <view class="container-body">
                 <view class="interface-content" @tap="inputBlur" wx:if="{{!isSearchResult}}">
                     <repeat class="list" for="{{result}}" key="index" index="index" item="item">
-                        <view class="list-item" @tap.stop="getWordMean">
+                        <view class="list-item" @tap.stop="getWordMean(item.key)">
                             <view class="item-key">
                                 {{item.key}}
                             </view>
@@ -35,7 +34,7 @@
                         </view>
                     </repeat>
                 </view>
-                <view class="wordMean-content" wx:else>
+                <view class="wordMean-content  animated {{isSearchResult?'fadeInUp':''}}" wx:else >
                     <!--基本信息-->
                     <view class="dic-basic">
                         <view class="dic-basic-info">
@@ -323,12 +322,12 @@
             );
 
         }
-
-
+        //获取释义
         async getWordMeanContent(value) {
 
             const _this = this;
             //重置
+            _this.isSearchResult = false;
             _this.baseInfo = {
               exchange: [],
               symbols: {}
@@ -379,7 +378,6 @@
             _this.$apply();
             wepy.hideLoading();
         }
-
         events = {
             "backTop"(value){
                 console.log('backtop',value);
@@ -387,7 +385,6 @@
                     this.setData({
                         scrollTop: 0
                     })
-
                     this.$apply();
                 }
             }
@@ -401,11 +398,11 @@
         }
 
         onLoad() {
-            let self = this;
+            let _this = this;
 //            wx.hideTabBar({aniamtion:true});
-            this.$parent.getUserInfo(function (userInfo) {
+            _this.$parent.getUserInfo(function (userInfo) {
                 if (userInfo) {
-                    self.userInfo = userInfo
+                    _this.userInfo = userInfo
                 }
             })
         }
@@ -426,7 +423,6 @@
             right: 0;
             bottom: 0;
             z-index: -1;
-
         }
         .bg-shade {
             transition: all .4s;
