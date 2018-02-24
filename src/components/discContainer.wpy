@@ -48,7 +48,7 @@
               <view class="dic-item-title"  @tap="accordionItemShow(1)">
                 网络释义<image src="//cdn.iciba.com/www/img/m/down.png" ></image>
               </view>
-              <view class="dic-item-content animated {{!accordionListShow[1]?'hide':'flipInY'}}" >
+              <view class="dic-item-content animated {{!accordionListShow[1]?'hide':'flipInX'}}" >
                 <view class="item-title">常用词组</view>
                 <view class="item-content">
                   <repeat for="{{detailsInfo.netmean.PerfectNetExp}}" key="index" index="index" item="item">
@@ -435,7 +435,7 @@
                   position: relative;
                   .dic-order{
                     position: absolute;
-                    top:rpx(4.5);
+                    top:rpx(4.3);
                     left: 0;
                     display: inline-block;
                     border: 1px solid #999;

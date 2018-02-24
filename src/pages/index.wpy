@@ -18,10 +18,10 @@
                     </view>
                 </view>
             </view>
-            <view class="container-body">
-                <view class="interface-content" @tap="inputBlur" >
+            <view class="container-body"  @tap.stop="inputBlur">
+                <view class="interface-content">
                   <view class="interface-list" wx:if="{{isSearchResult==0}}">
-                    <repeat class="list" for="{{result}}" key="index" index="index" item="item">
+                    <repeat class="list" for="{{interfaceResult}}" key="index" index="index" item="item">
                       <view class="list-item" @tap.stop="getWordMean({{item.key}})">
                         <view class="item-key">
                           {{item.key}}
@@ -36,7 +36,7 @@
                     </repeat>
                   </view>
                   <view class="interface-list search-again" wx:if="{{isSearchResult==2}}">
-                    <repeat class="list" for="{{result}}" key="index" index="index" item="item">
+                    <repeat class="list" for="{{interfaceResult}}" key="index" index="index" item="item">
                       <view class="list-item" @tap.stop="getWordMean({{item.key}})">
                         <view class="item-key">
                           {{item.key}}
@@ -76,7 +76,7 @@
         data = {
             isFocus: false,
             isSearchResult: 0, //0代表默认(未搜索过),1代表搜索1次,2代表搜索多次
-            result: [],
+            interfaceResult: [], //联想单词词组
             inputValue: '',
             isBackTopShow:false,//回到顶部按钮显示隐藏
             scrollTop:0,//滚动条位置数值
@@ -85,7 +85,13 @@
         methods = {
             //触发遮罩层关闭显示
             inputBlur() {
-                this.isFocus = false;
+                if(this.isSearchResult==0){
+                    this.isFocus = false;
+                    this.interfaceResult = [];
+                    this.inputValue = '';
+                    this.$apply();
+                    return;
+                }
             },
             inputFocus() {
                 this.isFocus = true;
@@ -94,7 +100,6 @@
               if(this.isSearchResult==1&&this.isFocus){
                 this.isSearchResult = 2;
                 this.$apply();
-//                console.log(this.isSearchResult,this.isFocus);
               }
               this.inputValue = event.detail.value;
             },
@@ -129,9 +134,9 @@
             let params = {
                 word: value
             }
-            _this.result = [];
+            _this.interfaceResult = [];
             await getInterface(params).then(res=>{
-              this.result = res.data.message;
+              this.interfaceResult = res.data.message;
               _this.$apply();
             }).catch(
               error=>{
