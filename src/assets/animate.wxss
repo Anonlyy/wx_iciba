@@ -1645,7 +1645,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     -ms-backface-visibility: visible !important;
     backface-visibility: visible !important;
     -webkit-animation-name: flipInY;
-    animation-name: flipInY
+    animation-name: flipInY;
 }
 
 @-webkit-keyframes flipOutX {

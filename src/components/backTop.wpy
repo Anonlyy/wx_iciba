@@ -1,6 +1,6 @@
 <template>
     <view id="fixed-btn-bar">
-        <view class="btn-backTop {{isBackTopShow?'fadeIn':'fadeOut'}}" @tap="backTop">
+        <view class="btn-backTop animated {{isBackTopShow?'wobble':'hide'}}" @tap="backTop">
             <image src="https://cdn.iciba.com/www/img/m/gotop.png"></image>
         </view>
     </view>
@@ -45,7 +45,6 @@
         bottom: rpx(40);
         z-index:1000;
         .btn-backTop{
-            overflow: hidden;
             image{
                 box-shadow: rpx(5) rpx(5) rpx(10) rgba(0,0,0,.1);
                 border-radius: 50%;

@@ -2,7 +2,8 @@
     <view id="app">
       <scroll-view class="scroll-view" scroll-y style="height:100%" upper-threshold="80" lower-threshold="80" @scrolltolower="getScrollOffset" @scrolltoupper="getScrollOffset" scroll-top="{{scrollTop}}" scroll-with-animation="true">
         <image class="bg" src="https://cdn.iciba.com/www/img/m/bg1.jpg"></image>
-        <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult?'bg-search-result':''}}]"></view>
+        <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult>=1?'bg-search-result':''}}]"></view>
+
         <view class="container">
             <view class="container-header {{isSearchResult?'bg-search':''}}">
                 <view class="search-main {{ isFocus ?'input-focus':''}}">
@@ -10,207 +11,47 @@
                         <view class="input-logo {{ isFocus ?'image-focus':''}}" >
                             <image src="https://cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
                         </view>
-                        <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus" @input="changeInput"/>
-                        <view class="btn-search" @tap="getWordMean">
+                        <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus" @input="changeInput" value="{{inputValue}}"/>
+                        <view class="btn-search" @tap="getWordMean({{inputValue}})">
                             <image src="https://cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
                         </view>
                     </view>
                 </view>
             </view>
             <view class="container-body">
-                <view class="interface-content" @tap="inputBlur" wx:if="{{!isSearchResult}}">
+                <view class="interface-content" @tap="inputBlur" >
+                  <view class="interface-list" wx:if="{{isSearchResult==0}}">
                     <repeat class="list" for="{{result}}" key="index" index="index" item="item">
-                        <view class="list-item" @tap.stop="getWordMean(item.key)">
-                            <view class="item-key">
-                                {{item.key}}
-                            </view>
-                            <repeat for="{{item.means}}" key="meansIndex" index="meansIndex"
-                                    item="meansItem">
-                                <view wx:if="{{meansIndex==0}}" class="item-value">
-                                    <text>{{meansItem.part}}</text>
-                                    <text>{{meansItem.means}}</text>
-                                </view>
-                            </repeat>
+                      <view class="list-item" @tap.stop="getWordMean({{item.key}})">
+                        <view class="item-key">
+                          {{item.key}}
                         </view>
+                        <repeat for="{{item.means}}" key="meansIndex" index="meansIndex" item="meansItem">
+                          <view wx:if="{{meansIndex==0}}" class="item-value">
+                            <text>{{meansItem.part}}</text>
+                            <text>{{meansItem.means}}</text>
+                          </view>
+                        </repeat>
+                      </view>
                     </repeat>
-                </view>
-                <view class="wordMean-content  animated {{isSearchResult?'fadeInUp':''}}" wx:else >
-                    <!--基本信息-->
-                    <view class="dic-basic">
-                        <view class="dic-basic-info">
-                            <view class="dic-basic-voice">
-                                <view class="voice-item" wx:if="{{baseInfo.symbols.ph_en}}">
-                                    英 [{{baseInfo.symbols.ph_en}}]
-                                  <en-sound :soundData.sync="word_mp3List" :index.sync="soundEn"></en-sound>
-                                </view>
-                                <view class="voice-item"  wx:if="{{baseInfo.symbols.ph_am}}">
-                                    美 [{{baseInfo.symbols.ph_am}}]
-                                  <am-sound :soundData.sync="word_mp3List" :index.sync="soundAm"></am-sound>
-                                </view>
-                            </view>
-                            <view class="dic-basic-explain">
-                                <repeat for="{{baseInfo.symbols.parts}}" key="index" index="index" item="item">
-                                    <view class="explain-item">
-                                        <view class="item-key">{{item.part}}</view>
-                                        <view class="item-value">
-                                            <repeat for="{{item.means}}" key="meanItemIndex" index="meanIteIndex" item="mean">
-                                                <text>{{mean}}</text>
-                                            </repeat>
-                                        </view>
-                                    </view>
-                                </repeat>
-                            </view>
-                            <view class="dic-plural" wx:if="{{baseInfo.exchange.length>=1}}">
-                                <view class="dic-plural-title clearfix">
-                                    <repeat for="{{baseInfo.exchange}}" key="index" index="index" item="item">
-                                        <view class="plural-item {{(index>=1&&!accordionListShow[0])?'fullHeightHide':'fullHeightShow'}}" @tap="accordionItemShow(0)">
-                                          <text>{{item.name}}:</text>
-                                          <text>{{item.value}}</text>
-                                          <image wx:if="{{baseInfo.exchange.length>1&&index==0}}" src="https://cdn.iciba.com/www/img/m/down.png"></image>
-                                        </view>
-                                    </repeat>
-                                </view>
-                            </view>
+                  </view>
+                  <view class="interface-list search-again" wx:if="{{isSearchResult==2}}">
+                    <repeat class="list" for="{{result}}" key="index" index="index" item="item">
+                      <view class="list-item" @tap.stop="getWordMean({{item.key}})">
+                        <view class="item-key">
+                          {{item.key}}
                         </view>
-                    </view>
-                    <!--基本信息-->
-                    <!--单词详义-->
-                    <view class="dic-content">
-                        <view class="dic-list">
-                            <!--网络释义-->
-                            <view class="dic-item" wx:if="{{detailsInfo.netmean.PerfectNetExp}}">
-                                <view class="dic-item-title"  @tap="accordionItemShow(1)">
-                                    网络释义<image src="//cdn.iciba.com/www/img/m/down.png" ></image>
-                                </view>
-                                <view class="dic-item-content {{!accordionListShow[1]?'hide':'show'}}" >
-                                    <view class="item-title">常用词组</view>
-                                    <view class="item-content">
-                                      <repeat for="{{detailsInfo.netmean.PerfectNetExp}}" key="index" index="index" item="item">
-                                        <view class="li">
-                                          <view class="dic-order">{{index+1}}</view>
-                                          <view class="dic-info">
-                                            <view class="dic-net-en">{{item.exp}}</view>
-                                            <view class="dic-net-info">{{item.abs}}</view>
-                                          </view>
-                                        </view>
-                                      </repeat>
-
-                                    </view>
-                                </view>
-                                <view class="dic-item-content {{!accordionListShow[1]?'hide':'show'}}">
-                                <view class="item-title">相关词条</view>
-                                <view class="item-content">
-                                  <repeat for="{{detailsInfo.netmean.RelatedPhrase}}" key="index" index="index" item="item">
-                                    <view class="li">
-                                      <view class="dic-order">{{index+1}}</view>
-                                      <view class="dic-info">
-                                        <view class="dic-net-en">{{item.list[0].key}}</view>
-                                        <view class="dic-net-cn">{{item.list[0].exp}}</view>
-                                        <view class="dic-net-info">{{item.list[0].abs}}</view>
-                                      </view>
-                                    </view>
-                                  </repeat>
-                                </view>
-                              </view>
-                            </view>
-                            <!--网络释义-->
-                            <!--双语例句-->
-                            <view class="dic-item sentence-item"  wx:if="{{detailsInfo.sentence[0].Network_en}}">
-                                <view class="dic-item-title"  @tap="accordionItemShow(2)">
-                                    双语例句<image src="https://cdn.iciba.com/www/img/m/down.png"></image>
-                                </view>
-                                <view class="dic-item-content {{!accordionListShow[2]?'hide':'show'}}">
-                                    <view class="item-content">
-                                        <repeat for="{{detailsInfo.sentence}}" key="index" index="index" item="item">
-                                            <view class="li">
-                                                <view class="dic-order">{{index+1}}.</view>
-                                                <view class="dic-info">
-                                                    <view class="dic-net-en">{{item.Network_en}}</view>
-                                                    <view class="dic-net-info">{{item.Network_cn}}</view>
-                                                </view>
-                                                <sound id="en-sound" :soundData.sync="item"></sound>
-                                            </view>
-                                        </repeat>
-
-                                    </view>
-                                </view>
-                            </view>
-                            <!--双语例句-->
-                            <!--同反义词-->
-                            <view class="dic-item antony-item" wx:if="{{detailsInfo.synonym[0].part_name||detailsInfo.antonym[0].part_name}}">
-                                <view class="dic-item-title"  @tap="accordionItemShow(3)">
-                                    同反义词<image src="https://cdn.iciba.com/www/img/m/down.png"></image>
-                                </view>
-                                <view class="dic-item-content {{!accordionListShow[3]?'hide':'show'}}" wx:if="{{detailsInfo.synonym[0].part_name}}">
-                                    <view class="item-title">同义词</view>
-                                    <view class="item-content">
-                                        <repeat for="{{detailsInfo.synonym}}" key="index" index="index" item="item">
-                                            <view class="li">
-                                                <view class="dic-explain">{{item.part_name}}</view>
-                                                <repeat  for="{{item.means}}" key="meansIndex" index="meansIndex" item="meansItem">
-                                                    <view class="dic-info">
-                                                        <view class="dic-net-en">{{meansIndex+1}}.   {{meansItem.word_mean}}</view>
-                                                        <repeat for="{{meansItem.cis}}"  index="wordsIndex"  item="wordItem">
-                                                            <text wx:if="{{wordsIndex<=5}}" class="dic-net-info">{{wordItem}} </text>
-                                                        </repeat>
-                                                    </view>
-                                                </repeat>
-
-                                            </view>
-                                        </repeat>
-                                    </view>
-                                </view>
-
-                                <view class="dic-item-content {{!accordionListShow[3]?'hide':'show'}}" wx:if="{{detailsInfo.antonym[0].part_name}}">
-                                    <view class="item-title">反义词</view>
-                                    <view class="item-content">
-                                        <repeat for="{{detailsInfo.antonym}}" key="index" index="index" item="item">
-                                            <view class="li">
-                                                <view class="dic-explain">{{item.part_name}}</view>
-                                                <repeat  for="{{item.means}}" key="meansIndex" index="meansIndex" item="meansItem">
-                                                    <view class="dic-info">
-                                                        <view class="dic-net-en">{{meansIndex+1}}.   {{meansItem.word_mean}}</view>
-                                                        <repeat for="{{meansItem.cis}}"  index="wordsIndex"  item="wordItem">
-                                                            <text wx:if="{{wordsIndex<=5}}" class="dic-net-info">{{wordItem}} ,</text>
-                                                        </repeat>
-                                                    </view>
-                                                </repeat>
-
-                                            </view>
-                                        </repeat>
-                                    </view>
-                                </view>
-                            </view>
-                            <!--同反义词-->
-                            <!--英英词典-->
-                            <view class="dic-item sentence-item" wx:if="{{detailsInfo.ee_mean[0].part_name}}">
-                              <view class="dic-item-title"  @tap="accordionItemShow(4)">
-                                英英释义<image src="https://cdn.iciba.com/www/img/m/down.png"></image>
-                              </view>
-                              <repeat for="{{detailsInfo.ee_mean}}" key="index" index="index" item="item">
-                              <view class="dic-item-content {{!accordionListShow[4]?'hide':'show'}}">
-                                <view class="item-title">{{item.part_name}}</view>
-                                <view class="item-content">
-                                  <repeat for="{{item.means}}" key="index" index="meansIndex" item="meansItem">
-                                    <view class="li">
-                                      <view class="dic-info">
-                                        <view class="dic-net-en">{{meansItem.word_mean}}</view>
-                                        <repeat for="{{meansItem.sentences}}" index="wordsIndex" item="wordsItem">
-                                          <view class="dic-net-info">{{wordsItem.sentence}}</view>
-                                        </repeat>
-                                      </view>
-                                    </view>
-
-                                  </repeat>
-                                </view>
-                              </view>
-                              </repeat>
-                              </view>
-                            <!--英英词典-->
-                        </view>
-                    </view>
-                    <!--单词详义-->
+                        <repeat for="{{item.means}}" key="meansIndex" index="meansIndex" item="meansItem">
+                          <view wx:if="{{meansIndex==0}}" class="item-value">
+                            <text>{{meansItem.part}}</text>
+                            <text>{{meansItem.means}}</text>
+                          </view>
+                        </repeat>
+                      </view>
+                    </repeat>
+                  </view>
                 </view>
+                <disc-container :isSearchResult.sync="isSearchResult" ></disc-container>
             </view>
         </view>
         <back-top :isBackTopShow.sync="isBackTopShow"></back-top>
@@ -221,44 +62,22 @@
 <script>
     import wepy from 'wepy';
     import {getInterface, getWordMean} from '../api/api';
-    import {exchangeFilter} from '../api/config';
-    import Sound from '../components/sound';
-    import BackTop from '../components/backTop'
+    import BackTop from '../components/backTop';
+    import discContainer from '../components/discContainer';
     export default class Index extends wepy.page {
         config = {
             navigationBarTitleText: '主页'
         }
         components = {
-          "en-sound":Sound, //单词
-          "am-sound":Sound, //单词
-          "sound":Sound,//例句
-           "back-top":BackTop
+          "back-top":BackTop,//回到顶部
+          "disc-container":discContainer,//单词释义内容
         }
 
         data = {
             isFocus: false,
-            isSearchResult: false,
+            isSearchResult: 0, //0代表默认(未搜索过),1代表搜索1次,2代表搜索多次
             result: [],
             inputValue: '',
-            baseInfo: {
-                exchange: [],
-                symbols: {}
-            },
-            detailsInfo:{
-                ee_mean:{}, //英英词典
-                sentence:{}, //双语例句
-                netmean:{}, //网络释义
-                synonym:{}, //同义词
-                antonym:{},//反义词
-                phrase:{},//词组搭配
-                jushi:{},//例句
-            },
-            exchangeFilter: exchangeFilter,
-            accordionListShow:[false,false,false,false,false],//控制所有折叠面板
-            //music数据
-            word_mp3List:[],
-            soundEn:0, //英文
-            soundAm:1, //美文
             isBackTopShow:false,//回到顶部按钮显示隐藏
             scrollTop:0,//滚动条位置数值
         }
@@ -272,11 +91,17 @@
                 this.isFocus = true;
             },
             changeInput(event) {
-                this.inputValue = event.detail.value;
+              if(this.isSearchResult==1&&this.isFocus){
+                this.isSearchResult = 2;
+                this.$apply();
+//                console.log(this.isSearchResult,this.isFocus);
+              }
+              this.inputValue = event.detail.value;
             },
-            getWordMean() {
+            getWordMean(value) {
                 const _this = this;
-                if (_this.inputValue == "" || _this.inputValue == null) {
+                _this.inputValue = value;
+                if (value == "" || value == null) {
                     wx.showToast({
                         title: '字符为空',
                         image: '../assets/img/ic-error.png',
@@ -284,13 +109,11 @@
                     });
                     return;
                 }
-                _this.getWordMeanContent(_this.inputValue);
-                _this.isSearchResult = true;
+                _this.$broadcast('getWordMeanValue',value);
+                _this.isSearchResult = 1;
+                _this.$apply();
             },
-            accordionItemShow(index){
-                this.accordionListShow[index] = !this.accordionListShow[index];
-                this.$apply();
-            },
+
             getScrollOffset(event){
               if(event.detail.direction=="bottom"){
                 this.isBackTopShow = true;
@@ -307,13 +130,13 @@
                 word: value
             }
             _this.result = [];
-            let res = await getInterface(params).then(res=>{
+            await getInterface(params).then(res=>{
               this.result = res.data.message;
               _this.$apply();
             }).catch(
               error=>{
                 wx.showToast({
-                  title: '请求出错',
+                  title: '请求联想单词出错',
                   image: '../assets/img/ic-error.png',
                   duration: 2000
                 });
@@ -322,72 +145,17 @@
             );
 
         }
-        //获取释义
-        async getWordMeanContent(value) {
 
-            const _this = this;
-            //重置
-            _this.isSearchResult = false;
-            _this.baseInfo = {
-              exchange: [],
-              symbols: {}
-            }
-            _this.detailsInfo = {
-              ee_mean:{},
-              sentence:{},
-              netmean:{},
-              synonym:{},
-              antonym:{},
-              phrase:{},
-              jushi:{},
-            }
-
-            let params = {
-                word: value
-            }
-            wepy.showLoading({
-              title: '加载中',
-              mask:true
-            })
-            let res = await getWordMean(params);
-
-            for (let item in res.data.baesInfo.exchange) {
-                if (res.data.baesInfo.exchange[item].length !== 0) {
-                    _this.baseInfo.exchange.push({
-                        name: _this.exchangeFilter[item].value,
-                        value: res.data.baesInfo.exchange[item].join('|').toString()
-                    })
-                }
-            }
-            _this.baseInfo = {
-                exchange: _this.baseInfo.exchange, //再赋值
-                symbols: res.data.baesInfo.symbols[0],
-            };
-            //赋值操作
-            _this.detailsInfo = {
-                ee_mean:res.data.ee_mean?res.data.ee_mean:{},
-                sentence:res.data.sentence?res.data.sentence:{},
-                netmean:res.data.netmean?res.data.netmean:{},
-                synonym:res.data.synonym?res.data.synonym:{},
-                antonym:res.data.antonym?res.data.antonym:{},
-                phrase:res.data.phrase?res.data.phrase:{},
-                jushi:res.data.jushi?res.data.jushi:{},
-            }
-            _this.word_mp3List = [_this.baseInfo.symbols.ph_en_mp3,_this.baseInfo.symbols.ph_am_mp3];
-//            _this.$broadcast('words_mp3',_this.mp3SrcList);
-            _this.$apply();
-            wepy.hideLoading();
-        }
         events = {
             "backTop"(value){
-                console.log('backtop',value);
                 if(value) {
                     this.setData({
                         scrollTop: 0
                     })
                     this.$apply();
                 }
-            }
+            },
+
         }
 
         mixins = []
@@ -400,11 +168,11 @@
         onLoad() {
             let _this = this;
 //            wx.hideTabBar({aniamtion:true});
-            _this.$parent.getUserInfo(function (userInfo) {
-                if (userInfo) {
-                    _this.userInfo = userInfo
-                }
-            })
+//            _this.$parent.getUserInfo(function (userInfo) {
+//                if (userInfo) {
+//                    _this.userInfo = userInfo
+//                }
+//            })
         }
     }
 </script>
@@ -514,252 +282,47 @@
             .container-body {
                 height: 87%;
                 width: 100%;
-                /*background-color: #F5F5F5;*/
                 .interface-content {
+                  position: relative;
+                  .interface-list{
                     height: 100%;
                     width: 100%;
-                    /*background-color: white;*/
                     .list-item {
-                        color: white;
-                        width: 100%;
-                        padding: rpx(18) rpx(20);
-                        font-size: rpx(32);
-                        display: flex;
-                        align-items: center;
-                        .item-key {
-                            display: inline-block;
-                            margin-right: rpx(18);
-                            font-weight: normal;
-
-                        }
-                        .item-value {
-                            display: inline-block;
-                            text-overflow: ellipsis;
-                            white-space: nowrap;
-                            overflow: hidden;
-                        }
-                    }
-                }
-                .wordMean-content{
-                    background-color: #efefef;
-                    .dic-basic{
-                        width: 100%;
-                        background-color: white;
-                        padding:rpx(30) rpx(20) 0;
-                        margin-bottom: rpx(30);
-                        position: relative;
-                        &::after{
-                          content: '';
-                          position: absolute;
-                          bottom:-20rpx;
-                          left: 0;
-                          height: rpx(20);
-                          width: 100%;
-                          background-color: #eeeeee;
-                        }
-                        .dic-basic-info{
-                            .dic-basic-voice{
-                                .voice-item{
-                                    display: inline-block;
-                                    margin-right: rpx(30);
-                                    font-size: rpx(35);
-                                    font-weight: normal;
-                                    color: #333333;
-
-                                }
-                            }
-                            .dic-basic-explain{
-                                margin-top:rpx(30);
-                                margin-bottom: rpx(20);
-                                border-bottom:1px solid #eee;
-                                padding-bottom:rpx(20);
-                                .explain-item{
-                                    display: table;
-                                    width: 100%;
-                                    font-size: rpx(33);
-                                    .item-key{
-                                        display: table-cell;
-                                        vertical-align: top;
-                                        line-height:rpx(50);
-                                    }
-                                    .item-value{
-                                        display: table-cell;
-                                        width: 90%;
-                                        padding-right:rpx(180);
-                                        line-height:rpx(50);
-                                        text{
-                                            color: #000;
-                                            font-weight: normal;
-                                            display: block;
-                                            float: left;
-                                        }
-                                    }
-                                }
-                            }
-                            .dic-plural{
-                                .dic-plural-title{
-                                  padding-bottom:rpx(30);
-                                    .plural-item{
-                                        height:rpx(50);
-                                        position: relative;
-                                        line-height:rpx(50);
-                                        display: block;
-                                        font-size: rpx(35);
-                                        text{
-                                            display: inline-block;
-                                            margin-right: rpx(30);
-                                        }
-                                        image{
-                                          width: rpx(30);
-                                          height:rpx(15);
-                                          position: absolute;
-                                          right: rpx(30);
-                                          top: 50%;
-                                          transform: translateY(-50%);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .dic-content{
-                      background-color: white;
-                      .dic-list{
-                        .dic-item{
-                          padding-left:rpx(42);
-                          padding-right:rpx(30);
-                          .dic-item-title{
-                            border-bottom:1px solid #E7E7E7;
-                            height:rpx(100);
-                            color: #0090ff;
-                            font-weight: normal;
-                            font-size: rpx(33);
-                            position: relative;
-                            /*padding-left:50rpx;*/
-                            line-height:rpx(100);
-                            image{
-                              width: rpx(30);
-                              height:rpx(15);
-                              position: absolute;
-                              right: rpx(20);
-                              top: 50%;
-                              transform: translateY(-50%);
-                            }
-                          }
-                          .dic-item-content{
-                            margin-bottom:rpx(20);
-                            .item-title{
-                              height:rpx(70);
-                              line-height:rpx(70);
-                              font-size: rpx(33);
-                              font-weight: bold;
-                              color: #888;
-                            }
-                            .item-content{
-                              .li{
-                                margin-top:rpx(10);
-                                position: relative;
-                                .dic-order{
-                                  position: absolute;
-                                  top:rpx(4.5);
-                                  left: 0;
-                                  display: inline-block;
-                                  border: 1px solid #999;
-                                  border-radius: 50%;
-                                  width: rpx(40);
-                                  text-align: center;
-                                  height:rpx(40);
-                                  font-weight: normal;
-                                  color: #999;
-                                  line-height:rpx(36);
-                                }
-                                .dic-info{
-                                  margin-left: rpx(45);
-                                  .dic-net-en,.dic-net-cn{
-                                    height:rpx(45);
-                                    margin-bottom:rpx(20);
-                                    line-height:rpx(45);
-                                    font-size: rpx(33);
-                                    font-weight: normal;
-                                  }
-                                  .dic-net-info{
-                                    color: #888;
-                                    font-size: rpx(30);
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
-                        .sentence-item{
-                           .dic-item-content{
-                               .item-content{
-                                   .li{
-                                       margin-bottom:rpx(10);
-                                       padding-right:rpx(70);
-                                       .dic-order{
-                                           border: none;
-                                       }
-                                      .dic-info{
-                                          .dic-net-en,.dic-net-cn{
-                                              height:auto;
-                                              margin-bottom:rpx(10);
-                                          }
-                                      }
-                                      .ic-sound{
-                                          position: absolute;
-                                          right: rpx(5);
-                                          bottom: 50%;
-                                          transform: translateY(50%);
-                                          width:rpx(40);
-                                          height:rpx(40);
-                                      }
-                                    }
-                                }
-                            }
-                        }
-                        .antony-item{
-                          .dic-item-content {
-                            padding-left:rpx(42);
-                            .item-title{
-                              display: inline-block;
-                              border:1px solid #b0b0b0;
-                              height:rpx(60);
-                              line-height:rpx(60);
-                              border-radius: 10%;
-                              margin:rpx(20) 0 rpx(10);
-                              padding:0 rpx(10);
-                              font-weight: normal;
-                            }
-                            .item-content {
-                              .li {
-                                  margin-bottom: rpx(10);
-                                  .dic-explain{
-                                      margin-bottom:rpx(10);
-                                      font-size: rpx(33);
-                                      height:rpx(45);
-                                      line-height:rpx(45);
-                                  }
-                                  .dic-info{
-                                      margin-bottom:rpx(20);
-                                      .dic-net-en,.dic-net-cn{
-                                          margin-bottom: 0;
-                                      }
-                                  }
-
-                                  .dic-order{
-                                      top:rpx(58);
-                                  }
-                                  &:last-child{
-                                      margin-bottom: 0;
-                                  }
-                               }
-                             }
-                            }
-                        }
+                      color: white;
+                      width: 100%;
+                      padding: rpx(18) rpx(20);
+                      font-size: rpx(32);
+                      display: flex;
+                      align-items: center;
+                      .item-key {
+                        display: inline-block;
+                        margin-right: rpx(18);
+                        font-weight: normal;
+                      }
+                      .item-value {
+                        display: inline-block;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                        overflow: hidden;
                       }
                     }
+                  }
+                  .search-again{
+                    position: fixed;
+                    top: rpx(145);
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background-color: rgba(0,0,0,.6);
+                    z-index: 999;
+                    .list-item{
+                      background-color: white;
+                      color: #000;
+                    }
+                  }
+
                 }
+
             }
         }
     }
