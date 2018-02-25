@@ -3,7 +3,6 @@
       <scroll-view class="scroll-view" scroll-y style="height:100%" upper-threshold="80" lower-threshold="80" @scrolltolower="getScrollOffset" @scrolltoupper="getScrollOffset" scroll-top="{{scrollTop}}" scroll-with-animation="true">
         <image class="bg" src="https://cdn.iciba.com/www/img/m/bg1.jpg"></image>
         <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult>=1?'bg-search-result':''}}]"></view>
-
         <view class="container">
             <view class="container-header {{isSearchResult?'bg-search':''}}">
                 <view class="search-main {{ isFocus ?'input-focus':''}}">
@@ -12,46 +11,15 @@
                             <image src="https://cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
                         </view>
                         <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus" @input="changeInput" value="{{inputValue}}"/>
-                        <view class="btn-search" @tap="getWordMean({{inputValue}})">
+                        <view class="btn-search" @tap="putWordMean({{inputValue}})">
                             <image src="https://cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
                         </view>
                     </view>
                 </view>
             </view>
-            <view class="container-body"  @tap.stop="inputBlur">
-                <view class="interface-content">
-                  <view class="interface-list" wx:if="{{isSearchResult==0}}">
-                    <repeat class="list" for="{{interfaceResult}}" key="index" index="index" item="item">
-                      <view class="list-item" @tap.stop="getWordMean({{item.key}})">
-                        <view class="item-key">
-                          {{item.key}}
-                        </view>
-                        <repeat for="{{item.means}}" key="meansIndex" index="meansIndex" item="meansItem">
-                          <view wx:if="{{meansIndex==0}}" class="item-value">
-                            <text>{{meansItem.part}}</text>
-                            <text>{{meansItem.means}}</text>
-                          </view>
-                        </repeat>
-                      </view>
-                    </repeat>
-                  </view>
-                  <view class="interface-list search-again" wx:if="{{isSearchResult==2}}">
-                    <repeat class="list" for="{{interfaceResult}}" key="index" index="index" item="item">
-                      <view class="list-item" @tap.stop="getWordMean({{item.key}})">
-                        <view class="item-key">
-                          {{item.key}}
-                        </view>
-                        <repeat for="{{item.means}}" key="meansIndex" index="meansIndex" item="meansItem">
-                          <view wx:if="{{meansIndex==0}}" class="item-value">
-                            <text>{{meansItem.part}}</text>
-                            <text>{{meansItem.means}}</text>
-                          </view>
-                        </repeat>
-                      </view>
-                    </repeat>
-                  </view>
-                </view>
-                <disc-container :isSearchResult.sync="isSearchResult" ></disc-container>
+            <view class="container-body" @tap.stop="inputBlur">
+                <interface-container :isSearchResult.sync="isSearchResult" :inputValue.sync="inputValue"></interface-container>
+                <disc-container :isSearchResult.sync="isSearchResult"></disc-container>
             </view>
         </view>
         <back-top :isBackTopShow.sync="isBackTopShow"></back-top>
@@ -61,22 +29,22 @@
 
 <script>
     import wepy from 'wepy';
-    import {getInterface, getWordMean} from '../api/api';
     import BackTop from '../components/backTop';
     import discContainer from '../components/discContainer';
+    import InterfaceContainer from '../components/interfaceContent';
     export default class Index extends wepy.page {
         config = {
             navigationBarTitleText: '主页'
         }
         components = {
           "back-top":BackTop,//回到顶部
+          "interface-container":InterfaceContainer,//单词联想内容
           "disc-container":discContainer,//单词释义内容
         }
 
         data = {
             isFocus: false,
             isSearchResult: 0, //0代表默认(未搜索过),1代表搜索1次,2代表搜索多次
-            interfaceResult: [], //联想单词词组
             inputValue: '',
             isBackTopShow:false,//回到顶部按钮显示隐藏
             scrollTop:0,//滚动条位置数值
@@ -99,26 +67,14 @@
             changeInput(event) {
               if(this.isSearchResult==1&&this.isFocus){
                 this.isSearchResult = 2;
+//                this.$broadcast('isSearchResult',this.isSearchResult);
                 this.$apply();
               }
               this.inputValue = event.detail.value;
             },
-            getWordMean(value) {
-                const _this = this;
-                _this.inputValue = value;
-                if (value == "" || value == null) {
-                    wx.showToast({
-                        title: '字符为空',
-                        image: '../assets/img/ic-error.png',
-                        duration: 2000
-                    });
-                    return;
-                }
-                _this.$broadcast('getWordMeanValue',value);
-                _this.isSearchResult = 1;
-                _this.$apply();
+            putWordMean(value){
+              this.$broadcast('getWordMeanValue',value);
             },
-
             getScrollOffset(event){
               if(event.detail.direction=="bottom"){
                 this.isBackTopShow = true;
@@ -126,29 +82,6 @@
               }
               this.isBackTopShow = false;
             }
-        }
-
-        //获取联想单词
-        async getInterfaceContent(value) {
-            const _this = this;
-            let params = {
-                word: value
-            }
-            _this.interfaceResult = [];
-            await getInterface(params).then(res=>{
-              this.interfaceResult = res.data.message;
-              _this.$apply();
-            }).catch(
-              error=>{
-                wx.showToast({
-                  title: '请求联想单词出错',
-                  image: '../assets/img/ic-error.png',
-                  duration: 2000
-                });
-                return;
-              }
-            );
-
         }
 
         events = {
@@ -160,14 +93,14 @@
                     this.$apply();
                 }
             },
-
+            "getWordMeanValue"(value){
+              this.$broadcast('getWordMeanValue',value);
+            }
         }
 
         mixins = []
         watch = {
-            inputValue(newValue){
-                this.getInterfaceContent(newValue);
-            },
+
         }
 
         onLoad() {
@@ -287,46 +220,7 @@
             .container-body {
                 height: 87%;
                 width: 100%;
-                .interface-content {
-                  position: relative;
-                  .interface-list{
-                    height: 100%;
-                    width: 100%;
-                    .list-item {
-                      color: white;
-                      width: 100%;
-                      padding: rpx(18) rpx(20);
-                      font-size: rpx(32);
-                      display: flex;
-                      align-items: center;
-                      .item-key {
-                        display: inline-block;
-                        margin-right: rpx(18);
-                        font-weight: normal;
-                      }
-                      .item-value {
-                        display: inline-block;
-                        text-overflow: ellipsis;
-                        white-space: nowrap;
-                        overflow: hidden;
-                      }
-                    }
-                  }
-                  .search-again{
-                    position: fixed;
-                    top: rpx(145);
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-color: rgba(0,0,0,.6);
-                    z-index: 999;
-                    .list-item{
-                      background-color: white;
-                      color: #000;
-                    }
-                  }
 
-                }
 
             }
         }

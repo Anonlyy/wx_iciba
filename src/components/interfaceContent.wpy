@@ -1,0 +1,156 @@
+<template>
+    <view id="interface-container">
+      <view class="interface-content">
+        <view class="interface-list" wx:if="{{isSearchResult==0}}">
+          <repeat class="list" for="{{interfaceResult}}" key="index" index="index" item="item">
+            <view class="list-item" @tap.stop="getWordMean({{item.key}})">
+              <view class="item-key">
+                {{item.key}}
+              </view>
+              <repeat for="{{item.means}}" key="meansIndex" index="meansIndex" item="meansItem">
+                <view wx:if="{{meansIndex==0}}" class="item-value">
+                  <text>{{meansItem.part}}</text>
+                  <text>{{meansItem.means}}</text>
+                </view>
+              </repeat>
+            </view>
+          </repeat>
+        </view>
+        <view class="interface-list search-again" wx:if="{{isSearchResult==2}}">
+          <repeat class="list" for="{{interfaceResult}}" key="index" index="index" item="item">
+            <view class="list-item" @tap.stop="getWordMean({{item.key}})">
+              <view class="item-key">
+                {{item.key}}
+              </view>
+              <repeat for="{{item.means}}" key="meansIndex" index="meansIndex" item="meansItem">
+                <view wx:if="{{meansIndex==0}}" class="item-value">
+                  <text>{{meansItem.part}}</text>
+                  <text>{{meansItem.means}}</text>
+                </view>
+              </repeat>
+            </view>
+          </repeat>
+        </view>
+      </view>
+    </view>
+</template>
+<script>
+
+    import wepy from 'wepy';
+    import {getInterface, getWordMean} from '../utils/api';
+    export default class InterfaceContainer extends wepy.component {
+        components = {};
+
+        data = {
+          interfaceResult: [], //联想单词词组
+        };
+        methods = {
+          getWordMean(value) {
+            const _this = this;
+            _this.inputValue = value;
+            if (value == "" || value == null) {
+              wx.showToast({
+                title: '字符为空',
+                image: '../assets/img/ic-error.png',
+                duration: 2000
+              });
+              return;
+            }
+            _this.$emit('getWordMeanValue',value);
+            _this.isSearchResult = 1;
+            _this.$apply();
+          },
+        };
+
+      //获取联想单词
+      async getInterfaceContent(value) {
+        const _this = this;
+        let params = {
+          word: value
+        }
+        _this.interfaceResult = [];
+        await getInterface(params).then(res=>{
+          this.interfaceResult = res.data.message;
+          _this.$apply();
+        }).catch(
+          error=>{
+            wx.showToast({
+              title: '请求联想单词出错',
+              image: '../assets/img/ic-error.png',
+              duration: 2000
+            });
+            return;
+          }
+        );
+
+      }
+      props = {
+        isSearchResult:{
+          type:Boolean,
+          twoWay:true,
+          default:false
+        },
+        inputValue:{
+          type:String,
+          twoWayL:true,
+          default:''
+        }
+      }
+      watch = {
+        inputValue(newValue){
+          this.getInterfaceContent(newValue);
+        },
+      }
+      events = {
+      };
+    }
+
+</script>
+
+<style lang="scss" rel="stylesheet/scss">
+  @function rpx($value) {
+    @return $value * 1rpx;
+  }
+  #interface-container{
+    .interface-content {
+      position: relative;
+      .interface-list{
+        height: 100%;
+        width: 100%;
+        .list-item {
+          color: white;
+          width: 100%;
+          padding: rpx(18) rpx(20);
+          font-size: rpx(32);
+          display: flex;
+          align-items: center;
+          .item-key {
+            display: inline-block;
+            margin-right: rpx(18);
+            font-weight: normal;
+          }
+          .item-value {
+            display: inline-block;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+          }
+        }
+      }
+      .search-again{
+        position: fixed;
+        top: rpx(145);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,.6);
+        z-index: 999;
+        .list-item{
+          background-color: white;
+          color: #000;
+        }
+      }
+
+    }
+  }
+</style>

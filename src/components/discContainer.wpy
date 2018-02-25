@@ -180,12 +180,10 @@
     </view>
 </template>
 <script>
-
     import wepy from 'wepy'
     import Sound from '../components/sound';
-    import {exchangeFilter} from '../api/config';
-    import {getWordMean} from '../api/api';
-    // export default class MyPage extends wepy.page {
+    import {exchangeFilter} from '../utils/config';
+    import {getWordMean} from '../utils/api';
     export default class DiscContainer extends wepy.component {
       components = {
         "en-sound":Sound, //单词
