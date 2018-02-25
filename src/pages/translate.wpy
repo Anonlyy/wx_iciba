@@ -1,13 +1,12 @@
 <template>
   <view>
-    <textarea>1212122</textarea>
+    <textarea>{{textareaValue}}</textarea>
   </view>
 </template>
 <script>
 
   import wepy from 'wepy'
-
-  // export default class MyPage extends wepy.page {
+  const MD5 = require('../utils/md5-min');
   export default class Translate extends wepy.page {
     components = {};
 
@@ -15,11 +14,15 @@
       navigationBarTitleText: '翻译'
     };
 
-    data = {};
+    data = {
+      textareaValue:''
+    };
     methods = {};
-
+    onLoad(){
+      this.textareaValue = MD5.hexMD5("123sfsa");
+      this.$apply();
+    }
     events = {};
-    // Other properties
   }
 
 </script>

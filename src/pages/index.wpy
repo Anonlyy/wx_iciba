@@ -67,7 +67,6 @@
             changeInput(event) {
               if(this.isSearchResult==1&&this.isFocus){
                 this.isSearchResult = 2;
-//                this.$broadcast('isSearchResult',this.isSearchResult);
                 this.$apply();
               }
               this.inputValue = event.detail.value;

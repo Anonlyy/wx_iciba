@@ -42,5 +42,8 @@ module.exports = {
         "word_conn":{
             value: '连词形式'
         },
+    },
+    aiuiAPI:{
+      ApiKey:'5a917acb'
     }
 }
