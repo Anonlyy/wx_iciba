@@ -6,8 +6,10 @@
 <script>
 
   import wepy from 'wepy';
-  import {getAccessToken} from '../utils/api'
+  import {getAccessToken,getImageToText} from '../utils/api'
   const MD5 = require('../utils/md5-min');
+  //文件引用
+  const CusBase64 = require('../utils/Base64');
   export default class Translate extends wepy.page {
     components = {};
 
@@ -16,15 +18,38 @@
     };
 
     data = {
-      textareaValue:''
+      textareaValue:'',
+      access_token:''
     };
     methods = {};
     onLoad(){
-      this.textareaValue = MD5.hexMD5("123sfsa");
-      this.$apply();
-      getAccessToken().then(function (res) {
-        console.log(res);
-      })
+      const _this = this;
+      _this.textareaValue = MD5.hexMD5("123sfsa");
+      _this.$apply();
+      let access_token;
+      getAccessToken().then(res=>{
+        _this.access_token = res.data.access_token;
+      });
+      var imageUrl=CusBase64.CusBASE64.encoder(`https://cw1.tw/CC/images/article/201709/article-59ae48b9701b4.jpg`);
+      let params = {
+        access_token:_this.access_token,
+        data:{
+          url:imageUrl
+        },
+        header:{
+          "Content-Type":"application/x-www-form-urlencoded"
+        }
+      }
+      getImageToText(params).then(result=>{
+        console.log(result);
+      });
+
+
+
+
+
+
+
 
 
 //      wx.request({

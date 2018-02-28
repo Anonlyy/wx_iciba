@@ -43,7 +43,9 @@ module.exports = {
             value: '连词形式'
         },
     },
-    aiuiAPI:{
-      ApiKey:'5a917acb'
+    //图像识别API
+    ImageAPIConfig:{
+      ApiKey:'mYs3GbGsqLawHLDmE5OGHAaZ',
+      SecretKey:'L2O6Q6LGtxElecSxOB1v8VgLUO8gtQuB'
     }
 }

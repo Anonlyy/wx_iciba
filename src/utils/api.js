@@ -1,4 +1,5 @@
 import wepy from 'wepy';
+import {ImageAPIConfig} from '../utils/config';
 const wxRequest = async (params = {}, url) => {
   wepy.showToast({
     title: '加载中',
@@ -7,6 +8,7 @@ const wxRequest = async (params = {}, url) => {
 
   let res = await wepy.request({
     url: url,
+    header:params.header || {},
     method: params.method || 'GET',
     data: params.data || {},
   });
@@ -21,17 +23,16 @@ const getWordMean = (params) => wxRequest(params, `https://www.iciba.com/index.p
 //翻译
 const getTranslate = (params) => wxRequest(params, `https://fy.iciba.com/ajax.php?a=fy&f=auto&t=auto&w=${params.content}`);
 //获取Access Token
-const getAccessToken = (params) => wxRequest(params, `https://aip.baidubce.com/oauth/2.0/token?
-    grant_type=client_credentials&
-    client_id=gxlKucQNdc9byyrQsx7bEGEk
-    client_secret= bELd59TesCh6spRcQYqpBfuPyUZt5SWy 
-`);
+const getAccessToken = (params) => wxRequest(params, `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${ImageAPIConfig.ApiKey}&client_secret=${ImageAPIConfig.SecretKey}`);
 
+//获取图片识别文字
+const getImageToText = (params) => wxRequest(params, `https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic?access_token=${params.access_token}`);
 
 
 module.exports = {
   getInterface,
   getWordMean,
   getTranslate,
-  getAccessToken
+  getAccessToken,
+  getImageToText
 }
