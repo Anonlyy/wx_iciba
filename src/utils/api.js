@@ -20,10 +20,18 @@ const getInterface = (params) => wxRequest(params, `https://dict-mobile.iciba.co
 const getWordMean = (params) => wxRequest(params, `https://www.iciba.com/index.php?a=getWordMean&c=search&list=1,4,8,9,12,13,14,3005&word=${params.word}`);
 //翻译
 const getTranslate = (params) => wxRequest(params, `https://fy.iciba.com/ajax.php?a=fy&f=auto&t=auto&w=${params.content}`);
+//获取Access Token
+const getAccessToken = (params) => wxRequest(params, `https://aip.baidubce.com/oauth/2.0/token?
+    grant_type=client_credentials&
+    client_id=gxlKucQNdc9byyrQsx7bEGEk
+    client_secret= bELd59TesCh6spRcQYqpBfuPyUZt5SWy 
+`);
+
 
 
 module.exports = {
   getInterface,
   getWordMean,
-  getTranslate
+  getTranslate,
+  getAccessToken
 }

@@ -5,7 +5,8 @@
 </template>
 <script>
 
-  import wepy from 'wepy'
+  import wepy from 'wepy';
+  import {getAccessToken} from '../utils/api'
   const MD5 = require('../utils/md5-min');
   export default class Translate extends wepy.page {
     components = {};
@@ -21,6 +22,19 @@
     onLoad(){
       this.textareaValue = MD5.hexMD5("123sfsa");
       this.$apply();
+      getAccessToken().then(function (res) {
+        console.log(res);
+      })
+
+
+//      wx.request({
+//        url: `https://aip.baidubce.com/oauth/2.0/token`,
+//        data: params,
+//        method: 'POST', // OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT
+//        header: {
+//          'Content-Type': method === 'POST' ? 'application/x-www-form-urlencoded' : 'application/json'
+//        },
+//      });
     }
     events = {};
   }
