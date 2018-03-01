@@ -55,8 +55,8 @@
   export default class extends wepy.app {
     config = {
       pages: [
-        'pages/index',
-        'pages/translate'
+          'pages/translate',
+          'pages/index'
       ],
       window: {
         backgroundTextStyle: 'light',

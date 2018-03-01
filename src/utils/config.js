@@ -45,7 +45,7 @@ module.exports = {
     },
     //图像识别API
     ImageAPIConfig:{
-      ApiKey:'mYs3GbGsqLawHLDmE5OGHAaZ',
-      SecretKey:'L2O6Q6LGtxElecSxOB1v8VgLUO8gtQuB'
+      ApiKey:'gxlKucQNdc9byyrQsx7bEGEk',
+      SecretKey:'bELd59TesCh6spRcQYqpBfuPyUZt5SWy'
     }
 }
