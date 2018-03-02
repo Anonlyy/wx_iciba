@@ -1,14 +1,21 @@
 <template>
-  <view>
-    <!--<textarea>{{textareaValue}}</textarea>-->
+  <view class="translate-container">
+
+      <!--<repeat for="{{words_result}}" key="index" index="index" item="item">-->
+        <!--<text>{{item.words}}</text>-->
+      <!--</repeat>-->
+    <textarea name="translate-textarea" id="" cols="30" placeholder="请输入你需要翻译的文字.."></textarea>
+
+    <view class="translate-result">
+
+    </view>
+
   </view>
 </template>
 <script>
 
   import wepy from 'wepy';
-  import {getAccessToken,getImageToText} from '../utils/api';
-  const MD5 = require('../utils/md5-min');
-  //文件引用
+  import {getAccessToken,getImageToText,getTranslate} from '../utils/api';
   const Base64 = require('../utils/Base64');
   export default class Translate extends wepy.page {
     components = {};
@@ -19,33 +26,48 @@
 
     data = {
       textareaValue:'',
-      access_token:''
+      access_token:'',
+      words_result:[]
     };
     methods = {};
     onLoad(){
-      this.getImageText();
-//      _this.textareaValue = MD5.hexMD5("123sfsa");
-//      wx.request({
-//        url: `https://aip.baidubce.com/oauth/2.0/token`,
-//        data: params,
-//        method: 'POST', // OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT
-//        header: {
-//          'Content-Type': method === 'POST' ? 'application/x-www-form-urlencoded' : 'application/json'
-//        },
-//      });
+//      wx.chooseImage({
+//        count: 1, // 默认9
+//        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
+//        sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+//        success: function (res) {
+//          // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
+//           this.tempFilePaths = res.tempFilePaths;
+//        }
+//      })
+//      this.getImageText();
     }
     events = {};
+
+
+    //获取翻译结果
+    async getTranslateResult(){
+      let params = {
+        data:{
+
+        }
+      }
+      await getTranslate(params).then(result=>{
+        console.log(result);
+      });
+    }
+    //获取图片文字识别API
     async getImageText(){
       const _this = this;
       await getAccessToken().then(res=>{
         _this.access_token = res.data.access_token;
       });
-//      let imageUrl = Base64.encode(`http://cw1.tw/CC/images/article/201709/article-59ae48b9701b4.jpg`);
-//      console.log(imageUrl);
+
       let params = {
+        access_token:_this.access_token,
         data:{
           access_token: _this.access_token,
-          image:"http://cw1.tw/CC/images/article/201709/article-59ae48b9701b4.jpg"
+          url:'http://cw1.tw/CC/images/article/201709/article-59ae48b9701b4.jpg'
         },
         header:{
           "Content-Type":"application/x-www-form-urlencoded"
@@ -53,16 +75,31 @@
         method:"POST"
       }
       getImageToText(params).then(result=>{
+        _this.words_result = result.data.words_result;
+        _this.$apply();
         console.log(result);
       });
-      _this.$apply();
+
     }
   }
 
 </script>
 
 <style lang="scss">
-  #app{
-
+  @function rpx($value) {
+    @return $value * 1rpx;
+  }
+  .translate-container{
+    [name="translate-textarea"]{
+      width: 90%;
+      margin: 0 auto;
+      border-radius: rpx(10);
+      font-weight: 300;
+      font-size: rpx(30);
+      padding:rpx(15) rpx(20);
+      box-shadow:rpx(5) rpx(5) rpx(5) rgba(0,0,0,.1);
+      border:1px solid #eeeeee;
+      height:rpx(360);
+    }
   }
 </style>
