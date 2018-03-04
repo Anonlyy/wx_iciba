@@ -103,7 +103,7 @@
         }
 
         onLoad() {
-            let _this = this;
+//            let _this = this;
 //            wx.hideTabBar({aniamtion:true});
 //            _this.$parent.getUserInfo(function (userInfo) {
 //                if (userInfo) {

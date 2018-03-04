@@ -4,8 +4,8 @@
       <!--<repeat for="{{words_result}}" key="index" index="index" item="item">-->
         <!--<text>{{item.words}}</text>-->
       <!--</repeat>-->
-    <textarea name="translate-textarea" id="" cols="30" placeholder="请输入你需要翻译的文字.."></textarea>
-
+    <textarea name="translate-textarea" id="" cols="30" placeholder="请输入你需要翻译的文字.." @input="changeTextarea"></textarea>
+    <button @tap="getTranslateResult">翻译</button>
     <view class="translate-result">
 
     </view>
@@ -27,13 +27,19 @@
     };
 
     data = {
-      textareaValue:'',
+      translationValue:'',
       access_token:'',
       words_result:[]
     };
-    methods = {};
+    methods = {
+        changeTextarea(e){
+            console.log(e.detail.value);
+//            this.translationValue = value;
+//            this.$apply();
+//            this.getTranslateResult(this,translationValue);
+        }
+    };
     onLoad(){
-      this.getTranslateResult();
 //      wx.chooseImage({
 //        count: 1, // 默认9
 //        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
@@ -45,18 +51,15 @@
 //      })
 //      this.getImageText();
     }
-    events = {};
-
+    events = {
+    };
 
     //获取翻译结果
-    async getTranslateResult(){
-
-      //得到翻译文本
-      let content = `Mum and I went into Hello Kitty's house as soon as we arrived`;
+    async getTranslateResult(value){
       let salt = Math.floor(Math.random()*10);
-      let sign = `${YoudaoTranslateConfig.appKey}${content}${salt}${YoudaoTranslateConfig.SecretKey}`;
+      let sign = `${YoudaoTranslateConfig.appKey}${value}${salt}${YoudaoTranslateConfig.SecretKey}`;
       let params = {
-        content:encodeURI(content),
+        content:encodeURI(value),
         salt:encodeURI(salt),
         sign:encodeURI(MD5.hexMD5(sign).toUpperCase())
       }
