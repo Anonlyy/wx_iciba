@@ -47,5 +47,10 @@ module.exports = {
     ImageAPIConfig:{
       ApiKey:'gxlKucQNdc9byyrQsx7bEGEk',
       SecretKey:'bELd59TesCh6spRcQYqpBfuPyUZt5SWy'
+    },
+    //有道翻译API
+    YoudaoTranslateConfig:{
+      appKey:"3891f2b7f04c2513",
+      SecretKey:'HqYPaL5K5XMv6hB2HmUo566IZidu6Eef'
     }
 }

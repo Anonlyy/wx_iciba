@@ -16,7 +16,9 @@
 
   import wepy from 'wepy';
   import {getAccessToken,getImageToText,getTranslate} from '../utils/api';
+  import {YoudaoTranslateConfig} from '../utils/config';
   const Base64 = require('../utils/Base64');
+  const MD5 = require('../utils/md5-min');
   export default class Translate extends wepy.page {
     components = {};
 
@@ -31,6 +33,7 @@
     };
     methods = {};
     onLoad(){
+      this.getTranslateResult();
 //      wx.chooseImage({
 //        count: 1, // 默认9
 //        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
@@ -47,16 +50,21 @@
 
     //获取翻译结果
     async getTranslateResult(){
-      let params = {
-        data:{
 
-        }
+      //得到翻译文本
+      let content = `Mum and I went into Hello Kitty's house as soon as we arrived`;
+      let salt = Math.floor(Math.random()*10);
+      let sign = `${YoudaoTranslateConfig.appKey}${content}${salt}${YoudaoTranslateConfig.SecretKey}`;
+      let params = {
+        content:encodeURI(content),
+        salt:encodeURI(salt),
+        sign:encodeURI(MD5.hexMD5(sign).toUpperCase())
       }
       await getTranslate(params).then(result=>{
-        console.log(result);
+        console.log(result.data);
       });
     }
-    //获取图片文字识别API
+    //获取图片文字识别API`
     async getImageText(){
       const _this = this;
       await getAccessToken().then(res=>{
@@ -85,7 +93,7 @@
 
 </script>
 
-<style lang="scss">
+<style lang="scss" rel="stylesheet/scss">
   @function rpx($value) {
     @return $value * 1rpx;
   }
