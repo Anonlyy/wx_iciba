@@ -109,6 +109,7 @@
         salt:encodeURI(salt),
         sign:encodeURI(MD5.hexMD5(sign).toUpperCase())
       }
+      console.log(params);
       await getTranslate(params).then(result=>{
         _this.translationResult = {
           query:result.data.query,
@@ -118,7 +119,13 @@
         this.isSearch = true;
         this.$apply();
 //        console.log(_this.translationResult);
-      });
+      }).catch(error=>{
+        wx.showToast({
+          title: '抱歉,搜索不到',
+          image: '../assets/img/ic-error.png',
+          duration: 1000
+        });
+      })
 
     }
     //获取图片文字识别API
