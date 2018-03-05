@@ -1,42 +1,72 @@
 <template>
   <view class="translate-container">
-
       <!--<repeat for="{{words_result}}" key="index" index="index" item="item">-->
         <!--<text>{{item.words}}</text>-->
       <!--</repeat>-->
-    <textarea name="translate-textarea" id="" cols="30" placeholder="请输入你需要翻译的文字.." @input="changeTextarea"></textarea>
-    <button @tap="getTranslateResult">翻译</button>
-    <view class="translate-result">
+    <textarea name="translate-textarea" class="{{isFocus?'textarea-focus':''}}" id="" cols="30" placeholder-style="{{isFocus?placeholderStyle:''}}" placeholder="请输入你需要翻译的文字.." maxlength="1000" @focus="changeFocus({{isFocus}})" @blur="changeFocus({{isFocus}})" @input="changeTextarea"></textarea>
+    <view class="translate-result" wx:if="{{isSearch}}">
+      <text class="result-title">翻译结果</text>
+      <view class="result-query">
+        {{translationResult.query}} <tSpeak-sound :soundData.sync="sentence_mp3List"  :index.sync="tSpeakUrl"></tSpeak-sound>
+      </view>
+      <view class="result-tl">
+        {{translationResult.translationText}}  <speak-sound :soundData.sync="sentence_mp3List"  :index.sync="SpeakUrl"></speak-sound>
+      </view>
 
     </view>
-
+    <view class="btn-tl" @tap="handleTranslation({{translationValue}})">翻译</view>
   </view>
 </template>
 <script>
 
   import wepy from 'wepy';
   import {getAccessToken,getImageToText,getTranslate} from '../utils/api';
+  import Sound from '../components/sound';
   import {YoudaoTranslateConfig} from '../utils/config';
   const Base64 = require('../utils/Base64');
   const MD5 = require('../utils/md5-min');
   export default class Translate extends wepy.page {
-    components = {};
-
+    components = {
+      "tSpeak-sound":Sound, //翻译语言
+      "speak-sound":Sound, //源语言
+    };
     config = {
       navigationBarTitleText: '翻译'
     };
 
     data = {
-      translationValue:'',
+      isFocus:false,
+      isSearch:false,
+      translationValue:'', //textarea文本内容
       access_token:'',
-      words_result:[]
+      placeholderStyle:'color: #0080FF;',
+      translationResult:{
+        query:'',//源语言
+        translationText:'',//翻译结果
+      },
+      SpeakUrl:1,
+      tSpeakUrl:0,
+      sentence_mp3List:[]
     };
     methods = {
         changeTextarea(e){
-            console.log(e.detail.value);
-//            this.translationValue = value;
-//            this.$apply();
-//            this.getTranslateResult(this,translationValue);
+            this.translationValue = e.detail.value;
+            this.$apply();
+        },
+        handleTranslation(value){
+          if(value==""||value==null||!value){
+            wx.showToast({
+              title: '你的输入为空',
+              image: '../assets/img/ic-error.png',
+              duration: 2000
+            });
+            return;
+          }
+          this.getTranslateResult(value);
+        },
+        changeFocus(boolean){
+          this.isFocus = !boolean;
+          this.$apply();
         }
     };
     onLoad(){
@@ -51,11 +81,12 @@
 //      })
 //      this.getImageText();
     }
-    events = {
-    };
+    events = {};
+
 
     //获取翻译结果
     async getTranslateResult(value){
+      const _this = this;
       let salt = Math.floor(Math.random()*10);
       let sign = `${YoudaoTranslateConfig.appKey}${value}${salt}${YoudaoTranslateConfig.SecretKey}`;
       let params = {
@@ -64,10 +95,18 @@
         sign:encodeURI(MD5.hexMD5(sign).toUpperCase())
       }
       await getTranslate(params).then(result=>{
-        console.log(result.data);
+        _this.translationResult = {
+          query:result.data.query,
+          translationText:result.data.translation[0],
+        }
+        _this.sentence_mp3List = [result.data.speakUrl,result.data.tSpeakUrl];
+        this.isSearch = true;
+        this.$apply();
+//        console.log(_this.translationResult);
       });
+
     }
-    //获取图片文字识别API`
+    //获取图片文字识别API
     async getImageText(){
       const _this = this;
       await getAccessToken().then(res=>{
@@ -100,17 +139,74 @@
   @function rpx($value) {
     @return $value * 1rpx;
   }
+  page{
+    background-color: rgba(0,0,0,.05);
+    width: 100%;
+    height: 100%;
+  }
   .translate-container{
+    width: 100%;
+    padding:rpx(20) rpx(15) 0;
     [name="translate-textarea"]{
-      width: 90%;
+      width: 100%;
       margin: 0 auto;
       border-radius: rpx(10);
       font-weight: 300;
       font-size: rpx(30);
       padding:rpx(15) rpx(20);
-      box-shadow:rpx(5) rpx(5) rpx(5) rgba(0,0,0,.1);
+      box-shadow:rpx(5) rpx(5) rpx(5) #eeeeee;
       border:1px solid #eeeeee;
+      background-color: white;
       height:rpx(360);
+      transition: all .3s;
+    }
+    .textarea-focus{
+      box-shadow:rpx(5) rpx(5) rpx(5) rgba(0,143,255,.5);
+      border:1px solid #008FFF;
+    }
+    .translate-result{
+      width: 100%;
+      background-color: white;
+      margin:rpx(60) auto rpx(30);
+      padding:rpx(10) rpx(30) rpx(50);
+      border: 1px solid #eeeeee;
+      .result-title{
+        display: block;
+        text-align: center;
+        font-size: rpx(35);
+        font-weight: normal;
+        height:rpx(60);
+        line-height:rpx(60);
+      }
+      .result-tl{
+        color: #000;
+        font-weight: normal;
+        font-size: rpx(32);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .result-query{
+        color: #888;
+        margin-bottom:rpx(15);
+        font-size: rpx(32);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+    .btn-tl{
+      margin:rpx(20) auto;
+      width: 80%;
+      text-align: center;
+      height:rpx(80);
+      line-height:rpx(80);
+      background: linear-gradient(172deg, #008FFF 0%, #0080FF 100%);
+      font-size: rpx(35);
+      font-weight: 300;
+      color: white;
+      box-shadow: rpx(10) rpx(10) rpx(2) rgba(0,143,255,.5);
+      border-radius: rpx(10);
     }
   }
 </style>

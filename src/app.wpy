@@ -15,7 +15,7 @@
     height: 100%;
   }
 
-  view {
+  view,textarea,text {
     box-sizing: border-box;
   }
   .clearfix::before,.clearfix::after{

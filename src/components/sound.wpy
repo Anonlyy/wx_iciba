@@ -9,7 +9,6 @@
     const audioCtx = wx.createInnerAudioContext();
     export default class Sound extends wepy.component {
         components = {};
-
         data = {
           isPlaying:false
         };
@@ -58,7 +57,6 @@
         };
         // Other properties
       onLoad(){
-//        console.log(this.soundData)
       }
     }
 
