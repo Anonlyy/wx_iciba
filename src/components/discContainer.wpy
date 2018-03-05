@@ -220,9 +220,9 @@
         };
         props = {
           isSearchResult:{
-            type:Boolean,
+            type:Number,
             twoWay:true,
-            default:false
+            default:0
           }
         }
 
@@ -240,7 +240,7 @@
 
         const _this = this;
         //重置
-        _this.isSearchResult = false;
+        _this.isSearchResult = 0;
         _this.baseInfo = {
           exchange: [],
           symbols: {}
@@ -288,6 +288,7 @@
             jushi:res.data.jushi?res.data.jushi:{},
           }
           _this.word_mp3List = [_this.baseInfo.symbols.ph_en_mp3,_this.baseInfo.symbols.ph_am_mp3];
+          _this.isSearchResult = 1;
           _this.$apply();
         }).catch(
           error=>{

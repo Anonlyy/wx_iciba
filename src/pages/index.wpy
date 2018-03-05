@@ -150,7 +150,7 @@
                     position: absolute;
                     top: 50%;
                     transition: all .3s;
-                    transform: translateY(-50%);
+                    transform: translateY(-50%) translateZ(0);
                     width: 100%;
                     padding: 0 rpx(15);
                     .search-main-box {

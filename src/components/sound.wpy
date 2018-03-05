@@ -1,6 +1,7 @@
 <template>
     <view class="sound-box" @tap="playSound">
       <image class="ic-sound {{isPlaying?'ic-sound-playing':''}}" src="{{isPlaying?'https://cdn.iciba.com/www/img/m/sound-play.gif':'https://cdn.iciba.com/www/img/m/sound.png'}}" ></image>
+
     </view>
 </template>
 <script>
@@ -15,17 +16,17 @@
         methods = {
           playSound(){
             audioCtx.autoplay = true;
+            audioCtx.onPlay(() => {
+//              console.log('开始播放');
+                this.isPlaying = true;
+                this.$apply();
+            });
             if(this.index<0){
               audioCtx.src = this.soundData.tts_mp3;
             }
             else{
               audioCtx.src = this.soundData[this.index];
             }
-            audioCtx.onPlay(() => {
-//              console.log('开始播放');
-              this.isPlaying = true;
-              this.$apply();
-            });
             audioCtx.onEnded(()=>{
 //              console.log('结束播放');
               this.isPlaying = false;
@@ -51,7 +52,7 @@
         }
         events = {
           'words_mp3':($event)=>{
-            console.log($event);
+//            console.log($event);
             this.src = $event.word_mp3.am_mp3;
           }
         };
@@ -70,10 +71,11 @@
   .sound-box{
     display: inline-block;
   }
-  .ic-sound{
-    width: rpx(30);
-    height:rpx(30);
+  .ic-sound,.ic-sound-playing,image{
+    width: rpx(40);
+    height:rpx(40);
     display: inline-block;
+    overflow: hidden;
     vertical-align: middle;
   }
 </style>

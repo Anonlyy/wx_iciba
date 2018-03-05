@@ -4,13 +4,18 @@
         <!--<text>{{item.words}}</text>-->
       <!--</repeat>-->
     <textarea name="translate-textarea" class="{{isFocus?'textarea-focus':''}}" id="" cols="30" placeholder-style="{{isFocus?placeholderStyle:''}}" placeholder="请输入你需要翻译的文字.." maxlength="1000" @focus="changeFocus({{isFocus}})" @blur="changeFocus({{isFocus}})" @input="changeTextarea"></textarea>
-    <view class="translate-result" wx:if="{{isSearch}}">
+    <image class="ic-down  animated {{isSearch?'fadeInDown':'hide'}}" src="//p53ff6x0c.bkt.clouddn.com/18-3-5/73372806.jpg"></image>
+    <view class="translate-result animated {{isSearch?'fadeInDown':'hide'}}">
       <text class="result-title">翻译结果</text>
       <view class="result-query">
-        {{translationResult.query}} <tSpeak-sound :soundData.sync="sentence_mp3List"  :index.sync="tSpeakUrl"></tSpeak-sound>
+        <view class="text">{{translationResult.query}}</view>
+         <tSpeak-sound :soundData.sync="sentence_mp3List"  :index.sync="tSpeakUrl"></tSpeak-sound>
       </view>
       <view class="result-tl">
-        {{translationResult.translationText}}  <speak-sound :soundData.sync="sentence_mp3List"  :index.sync="SpeakUrl"></speak-sound>
+        <view class="text">
+          {{translationResult.translationText}}
+        </view>
+       <speak-sound :soundData.sync="sentence_mp3List" :index.sync="SpeakUrl"></speak-sound>
       </view>
 
     </view>
@@ -64,8 +69,18 @@
           }
           this.getTranslateResult(value);
         },
-        changeFocus(boolean){
-          this.isFocus = !boolean;
+        changeFocus(boolean,event){
+//          console.log(boolean);
+          if(this.isSearch&&event.type=="focus"){ //搜索过一次又搜索
+            console.log('你又搜索了',);
+//            this.isSearch = false;
+          }
+          if(!boolean){
+            this.isFocus = true;
+          }
+          else if(boolean){
+            this.isFocus = false;
+          }
           this.$apply();
         }
     };
@@ -150,11 +165,11 @@
     [name="translate-textarea"]{
       width: 100%;
       margin: 0 auto;
-      border-radius: rpx(10);
+      border-radius: rpx(15);
       font-weight: 300;
       font-size: rpx(30);
       padding:rpx(15) rpx(20);
-      box-shadow:rpx(5) rpx(5) rpx(5) #eeeeee;
+      box-shadow:rpx(10) rpx(10) rpx(5) #eeeeee;
       border:1px solid #eeeeee;
       background-color: white;
       height:rpx(360);
@@ -163,11 +178,19 @@
     .textarea-focus{
       box-shadow:rpx(5) rpx(5) rpx(5) rgba(0,143,255,.5);
       border:1px solid #008FFF;
+      color: #008FFF;
+    }
+    .ic-down{
+      width:rpx(80);
+      height:rpx(80);
+      display: block;
+      margin: rpx(20) auto;
     }
     .translate-result{
       width: 100%;
+      border-radius: rpx(15);
       background-color: white;
-      margin:rpx(60) auto rpx(30);
+      margin:rpx(20) auto rpx(30);
       padding:rpx(10) rpx(30) rpx(50);
       border: 1px solid #eeeeee;
       .result-title{
@@ -185,6 +208,9 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        .text{
+          margin-right:rpx(20);
+        }
       }
       .result-query{
         color: #888;
@@ -193,6 +219,9 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        .text{
+          margin-right:rpx(40);
+        }
       }
     }
     .btn-tl{
