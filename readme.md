@@ -3,15 +3,19 @@
 >微信小程序基于wepy框架开发-金山词霸
 
 ### 项目使用
+
 - 克隆本项目
 - 进入目录安装依赖包
 - 启动服务
+
 	git clone https://github.com/Anonlyy/wx_iciba.git
 	cd wx_iciba
 	npm install
 	npm start
 	
+	
 #### 命令说明
+
 	// 开发阶段，监听src目录下文件变动情况，即使编译并复制到dist文件夹
 	npm start 
 	// 打包编译项目
