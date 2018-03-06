@@ -10,7 +10,7 @@
     <view class="select">
       <picker mode="multiSelector" @change="multiPickerChange" @columnchange="multiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">
         <view class="picker">
-          {{languageData[multiIndex[0]].name}}:{{languageData[multiIndex[1]].name}}
+          {{languageData[multiIndex[0]].name}} » {{languageData[multiIndex[1]].name}}
         </view>
       </picker>
       <view class="btn-tl" @tap="handleTranslation({{translationValue}})">翻译</view>
@@ -61,6 +61,10 @@
       multiIndex: [0, 0],
       multiArray: MultiArray,
       languageData:LanguageData,
+      fromToLanguage:{
+        form:'Auto',
+        to:'Auto',
+      },
       translationValue: '', //textarea文本内容
       access_token: '',
       placeholderStyle: 'color: #0080FF;',
@@ -104,14 +108,19 @@
       },
       multiPickerChange(e) {
         this.multiIndex[0] = e.detail.value[0];
-        this.multiIndex[1] = e.detail.value[1];
+        this.multiIndex[1] = e.detail.value[1]
+        console.log(this.languageData);
+        this.fromToLanguage = {
+          form:this.languageData[e.detail.value[0]].key,
+          to:this.languageData[e.detail.value[1]].key
+        }
+//        console.log(this.fromToLanguage);
         this.$apply();
       },
-//      multiPickerColumnChange(e){
-//        console.log('修改的列为', e.detail.column, '，值为', e.detail.value);
-//      }
+      multiPickerColumnChange(e){
+        console.log('修改的列为', e.detail.column, '，值为', e.detail.value);
+      }
     };
-
     onLoad() {
 //      wx.chooseImage({
 //        count: 1, // 默认9
@@ -126,8 +135,6 @@
     }
 
     events = {};
-
-
     //获取翻译结果
     async getTranslateResult(value) {
       const _this = this;
@@ -137,8 +144,8 @@
         q: encodeURI(value),
         salt: encodeURI(salt),
         sign: encodeURI(MD5.MD5(sign)),
-        from: 'Auto',
-        to: 'Auto',
+        from: _this.fromToLanguage.form,
+        to:_this.fromToLanguage.to
       }
       await getTranslate(params).then(result => {
         _this.translationResult = {
@@ -283,7 +290,7 @@
       }
       .result-query {
         color: #888;
-        margin-bottom: rpx(15);
+        margin-bottom: rpx(20);
         font-size: rpx(32);
         display: flex;
         align-items: center;
