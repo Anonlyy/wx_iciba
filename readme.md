@@ -8,10 +8,12 @@
 - 进入目录安装依赖包
 - 启动服务
 
-	git clone https://github.com/Anonlyy/wx_iciba.git
-	cd wx_iciba
-	npm install
-	npm start
+
+
+		git clone https://github.com/Anonlyy/wx_iciba.git
+		cd wx_iciba
+		npm install
+		npm start
 	
 	
 #### 命令说明
