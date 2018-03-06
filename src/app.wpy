@@ -1,21 +1,20 @@
 <style lang="scss" rel="stylesheet/scss">
     @import "assets/animate.wxss";
-  #app {
+  #app,page {
     width: 100%;
     height: 100%;
     color: #333;
+    box-sizing: border-box;
     font-size: 30rpx;
     font-weight: 300;
     font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   }
 
-  page {
-    box-sizing: border-box;
-    width: 100%;
-    height: 100%;
-  }
-
   view,textarea,text {
+    color: #333;
+    font-size: 30rpx;
+    font-weight: 300;
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
     box-sizing: border-box;
   }
   .clearfix::before,.clearfix::after{
@@ -55,8 +54,8 @@
   export default class extends wepy.app {
     config = {
       pages: [
-          'pages/index',
-          'pages/translate'
+        'pages/translate',
+        'pages/index'
       ],
       window: {
         backgroundTextStyle: 'light',

@@ -29,7 +29,7 @@ const getImageToText = (params) => wxRequest(params, `https://aip.baidubce.com/r
 
 
 //有道翻译API
-const getTranslate = (params) => wxRequest(params, `https://openapi.youdao.com/api?q=${params.content}&from=EN&to=zh_CHS&appKey=${encodeURI(YoudaoTranslateConfig.appKey)}&salt=${params.salt}&sign=${params.sign}&ext=wav`);
+const getTranslate = (params) => wxRequest(params, `https://openapi.youdao.com/api?q=${params.q}&appKey=${encodeURI(YoudaoTranslateConfig.appKey)}&salt=${params.salt}&sign=${params.sign}&from=${params.from}&to=${params.to}`);
 //获取每日一句2018-03-03
 const getEveryDayWord = (params) =>wxRequest(params,`https://open.iciba.com/dsapi/?date=${date}`);
 

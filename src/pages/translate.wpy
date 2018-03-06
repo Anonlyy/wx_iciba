@@ -1,90 +1,118 @@
 <template>
   <view class="translate-container">
-      <!--<repeat for="{{words_result}}" key="index" index="index" item="item">-->
-        <!--<text>{{item.words}}</text>-->
-      <!--</repeat>-->
-    <textarea name="translate-textarea" class="{{isFocus?'textarea-focus':''}}" id="" cols="30" placeholder-style="{{isFocus?placeholderStyle:''}}" placeholder="请输入你需要翻译的文字.." maxlength="1000" @focus="changeFocus({{isFocus}})" @blur="changeFocus({{isFocus}})" @input="changeTextarea"></textarea>
-    <image class="ic-down  animated {{isSearch?'fadeInDown':'hide'}}" src="//p53ff6x0c.bkt.clouddn.com/18-3-5/73372806.jpg"></image>
+    <!--<repeat for="{{words_result}}" key="index" index="index" item="item">-->
+    <!--<text>{{item.words}}</text>-->
+    <!--</repeat>-->
+
+    <textarea name="translate-textarea" class="{{isFocus?'textarea-focus':''}}" id="" cols="30"
+              placeholder-style="{{isFocus?placeholderStyle:''}}" placeholder="请输入你需要翻译的文字.." maxlength="1000"
+              @focus="changeFocus({{isFocus}})" @blur="changeFocus({{isFocus}})" @input="changeTextarea"></textarea>
+    <view class="select">
+      <picker mode="multiSelector" @change="multiPickerChange" @columnchange="multiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">
+        <view class="picker">
+          {{languageData[multiIndex[0]].name}}:{{languageData[multiIndex[1]].name}}
+        </view>
+      </picker>
+      <view class="btn-tl" @tap="handleTranslation({{translationValue}})">翻译</view>
+    </view>
+    <image class="ic-down  animated {{isSearch?'fadeInDown':'hide'}}"
+           src="//p53ff6x0c.bkt.clouddn.com/18-3-5/73372806.jpg"></image>
+
     <view class="translate-result animated {{isSearch?'fadeInDown':'hide'}}">
       <text class="result-title">翻译结果</text>
       <view class="result-query">
         <view class="text">{{translationResult.query}}</view>
-         <tSpeak-sound :soundData.sync="sentence_mp3List"  :index.sync="tSpeakUrl"></tSpeak-sound>
+        <tSpeak-sound :soundData.sync="sentence_mp3List" :index.sync="tSpeakUrl"></tSpeak-sound>
       </view>
       <view class="result-tl">
         <view class="text">
           {{translationResult.translationText}}
         </view>
-       <speak-sound :soundData.sync="sentence_mp3List" :index.sync="SpeakUrl"></speak-sound>
+        <speak-sound :soundData.sync="sentence_mp3List" :index.sync="SpeakUrl"></speak-sound>
       </view>
 
     </view>
-    <view class="btn-tl" @tap="handleTranslation({{translationValue}})">翻译</view>
+
   </view>
 </template>
 <script>
 
   import wepy from 'wepy';
-  import {getAccessToken,getImageToText,getTranslate} from '../utils/api';
+  import {getAccessToken, getImageToText, getTranslate} from '../utils/api';
+  import {LanguageData,MultiArray} from '../utils/config';
   import Sound from '../components/sound';
   import {YoudaoTranslateConfig} from '../utils/config';
+
   const Base64 = require('../utils/Base64');
-  const MD5 = require('../utils/md5-min');
+  import MD5 from '../utils/MD5';
+
   export default class Translate extends wepy.page {
     components = {
-      "tSpeak-sound":Sound, //翻译语言
-      "speak-sound":Sound, //源语言
+      "tSpeak-sound": Sound, //翻译语言
+      "speak-sound": Sound, //源语言
     };
     config = {
       navigationBarTitleText: '翻译'
     };
 
     data = {
-      isFocus:false,
-      isSearch:false,
-      translationValue:'', //textarea文本内容
-      access_token:'',
-      placeholderStyle:'color: #0080FF;',
-      translationResult:{
-        query:'',//源语言
-        translationText:'',//翻译结果
+      isFocus: false,
+      isSearch: false,
+      multiIndex: [0, 0],
+      multiArray: MultiArray,
+      languageData:LanguageData,
+      translationValue: '', //textarea文本内容
+      access_token: '',
+      placeholderStyle: 'color: #0080FF;',
+      translationResult: {
+        query: '',//源语言
+        translationText: '',//翻译结果
       },
-      SpeakUrl:1,
-      tSpeakUrl:0,
-      sentence_mp3List:[]
+      SpeakUrl: 1,
+      tSpeakUrl: 0,
+      sentence_mp3List: []
     };
     methods = {
-        changeTextarea(e){
-            this.translationValue = e.detail.value;
-            this.$apply();
-        },
-        handleTranslation(value){
-          if(value==""||value==null||!value){
-            wx.showToast({
-              title: '你的输入为空',
-              image: '../assets/img/ic-error.png',
-              duration: 2000
-            });
-            return;
-          }
-          this.getTranslateResult(value);
-        },
-        changeFocus(boolean,event){
-//          console.log(boolean);
-          if(this.isSearch&&event.type=="focus"){ //搜索过一次又搜索
-            console.log('你又搜索了',);
-//            this.isSearch = false;
-          }
-          if(!boolean){
-            this.isFocus = true;
-          }
-          else if(boolean){
-            this.isFocus = false;
-          }
-          this.$apply();
+      changeTextarea(e) {
+        this.translationValue = e.detail.value;
+        this.$apply();
+      },
+      handleTranslation(value) {
+        if (value == "" || value == null || !value) {
+          wx.showToast({
+            title: '你的输入为空',
+            image: '../assets/img/ic-error.png',
+            duration: 2000
+          });
+          return;
         }
+        this.getTranslateResult(value);
+      },
+      changeFocus(boolean, event) {
+//          console.log(boolean);
+        if (this.isSearch && event.type == "focus") { //搜索过一次又搜索
+          console.log('你又搜索了',);
+//            this.isSearch = false;
+        }
+        if (!boolean) {
+          this.isFocus = true;
+        }
+        else if (boolean) {
+          this.isFocus = false;
+        }
+        this.$apply();
+      },
+      multiPickerChange(e) {
+        this.multiIndex[0] = e.detail.value[0];
+        this.multiIndex[1] = e.detail.value[1];
+        this.$apply();
+      },
+//      multiPickerColumnChange(e){
+//        console.log('修改的列为', e.detail.column, '，值为', e.detail.value);
+//      }
     };
-    onLoad(){
+
+    onLoad() {
 //      wx.chooseImage({
 //        count: 1, // 默认9
 //        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
@@ -96,57 +124,59 @@
 //      })
 //      this.getImageText();
     }
+
     events = {};
 
 
     //获取翻译结果
-    async getTranslateResult(value){
+    async getTranslateResult(value) {
       const _this = this;
-      let salt = Math.floor(Math.random()*10);
+      let salt = Math.floor(Math.random() * 10);
       let sign = `${YoudaoTranslateConfig.appKey}${value}${salt}${YoudaoTranslateConfig.SecretKey}`;
       let params = {
-        content:encodeURI(value),
-        salt:encodeURI(salt),
-        sign:encodeURI(MD5.hexMD5(sign).toUpperCase())
+        q: encodeURI(value),
+        salt: encodeURI(salt),
+        sign: encodeURI(MD5.MD5(sign)),
+        from: 'Auto',
+        to: 'Auto',
       }
-      console.log(params);
-      await getTranslate(params).then(result=>{
+      await getTranslate(params).then(result => {
         _this.translationResult = {
-          query:result.data.query,
-          translationText:result.data.translation[0],
+          query: result.data.query,
+          translationText: result.data.translation[0],
         }
-        _this.sentence_mp3List = [result.data.speakUrl,result.data.tSpeakUrl];
+        _this.sentence_mp3List = [result.data.speakUrl, result.data.tSpeakUrl];
         this.isSearch = true;
         this.$apply();
 //        console.log(_this.translationResult);
-      }).catch(error=>{
+      }).catch(error => {
         wx.showToast({
           title: '抱歉,搜索不到',
           image: '../assets/img/ic-error.png',
           duration: 1000
         });
       })
-
     }
+
     //获取图片文字识别API
-    async getImageText(){
+    async getImageText() {
       const _this = this;
-      await getAccessToken().then(res=>{
+      await getAccessToken().then(res => {
         _this.access_token = res.data.access_token;
       });
 
       let params = {
-        access_token:_this.access_token,
-        data:{
+        access_token: _this.access_token,
+        data: {
           access_token: _this.access_token,
-          url:'http://cw1.tw/CC/images/article/201709/article-59ae48b9701b4.jpg'
+          url: 'http://cw1.tw/CC/images/article/201709/article-59ae48b9701b4.jpg'
         },
-        header:{
-          "Content-Type":"application/x-www-form-urlencoded"
+        header: {
+          "Content-Type": "application/x-www-form-urlencoded"
         },
-        method:"POST"
+        method: "POST"
       }
-      getImageToText(params).then(result=>{
+      getImageToText(params).then(result => {
         _this.words_result = result.data.words_result;
         _this.$apply();
         console.log(result);
@@ -161,88 +191,108 @@
   @function rpx($value) {
     @return $value * 1rpx;
   }
-  page{
-    background-color: rgba(0,0,0,.05);
+
+  page {
+    background-color: rgba(0, 0, 0, .05);
     width: 100%;
     height: 100%;
   }
-  .translate-container{
+
+  .translate-container {
     width: 100%;
-    padding:rpx(20) rpx(15) 0;
-    [name="translate-textarea"]{
+    padding: rpx(20) rpx(15) 0;
+    [name="translate-textarea"] {
       width: 100%;
       margin: 0 auto;
       border-radius: rpx(15);
       font-weight: 300;
       font-size: rpx(30);
-      padding:rpx(15) rpx(20);
-      box-shadow:rpx(10) rpx(10) rpx(5) #eeeeee;
-      border:1px solid #eeeeee;
+      padding: rpx(15) rpx(20);
+      box-shadow: rpx(10) rpx(10) rpx(5) #eeeeee;
+      border: 1px solid #eeeeee;
       background-color: white;
-      height:rpx(360);
+      height: rpx(360);
       transition: all .3s;
     }
-    .textarea-focus{
-      box-shadow:rpx(5) rpx(5) rpx(5) rgba(0,143,255,.5);
-      border:1px solid #008FFF;
+    .textarea-focus {
+      box-shadow: rpx(5) rpx(5) rpx(5) rgba(0, 143, 255, .5);
+      border: 1px solid #008FFF;
       color: #008FFF;
     }
-    .ic-down{
-      width:rpx(80);
-      height:rpx(80);
+    .select {
+      display: flex;
+      width: 100%;
+      align-items: center;
+      justify-content: space-around;
+      margin: rpx(20) auto;
+      height: rpx(80);
+      line-height: rpx(80);
+      picker{
+        width: 35%;
+        border: 1px solid #eee;
+        background-color: white;
+        text-align: center;
+        border-radius: rpx(10);
+        .picker {
+
+
+        }
+      }
+      .btn-tl {
+        width: 50%;
+        text-align: center;
+
+        background: linear-gradient(172deg, #008FFF 0%, #0080FF 100%);
+        font-size: rpx(35);
+        color: white;
+        box-shadow: rpx(10) rpx(10) rpx(2) rgba(0, 143, 255, .5);
+        border-radius: rpx(10);
+      }
+    }
+    .ic-down {
+      width: rpx(80);
+      height: rpx(80);
       display: block;
       margin: rpx(20) auto;
     }
-    .translate-result{
+    .translate-result {
       width: 100%;
       border-radius: rpx(15);
       background-color: white;
-      margin:rpx(20) auto rpx(30);
-      padding:rpx(10) rpx(30) rpx(50);
+      margin: rpx(20) auto rpx(30);
+      padding: rpx(10) rpx(30) rpx(50);
       border: 1px solid #eeeeee;
-      .result-title{
+      .result-title {
         display: block;
         text-align: center;
         font-size: rpx(35);
         font-weight: normal;
-        height:rpx(60);
-        line-height:rpx(60);
+        height: rpx(60);
+        line-height: rpx(60);
       }
-      .result-tl{
+      .result-tl {
         color: #000;
         font-weight: normal;
         font-size: rpx(32);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        .text{
-          margin-right:rpx(20);
+        .text {
+          margin-right: rpx(20);
         }
       }
-      .result-query{
+      .result-query {
         color: #888;
-        margin-bottom:rpx(15);
+        margin-bottom: rpx(15);
         font-size: rpx(32);
         display: flex;
         align-items: center;
         justify-content: space-between;
-        .text{
-          margin-right:rpx(40);
+        .text {
+          margin-right: rpx(40);
         }
       }
     }
-    .btn-tl{
-      margin:rpx(20) auto;
-      width: 80%;
-      text-align: center;
-      height:rpx(80);
-      line-height:rpx(80);
-      background: linear-gradient(172deg, #008FFF 0%, #0080FF 100%);
-      font-size: rpx(35);
-      font-weight: 300;
-      color: white;
-      box-shadow: rpx(10) rpx(10) rpx(2) rgba(0,143,255,.5);
-      border-radius: rpx(10);
-    }
+
   }
 </style>

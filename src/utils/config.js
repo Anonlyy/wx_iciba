@@ -43,6 +43,39 @@ module.exports = {
             value: '连词形式'
         },
     },
+    //翻译语言 '中文', '日文', '英文', '韩文', '法文', '葡萄牙文', '西班牙文'
+    LanguageData:[
+      {
+        name:'中文',
+        key:'zh-CHS'
+      },
+      {
+        name:'日文',
+        key:'ja'
+      },
+      {
+        name:'英文',
+        key:'EN'
+      },
+      {
+        name:'韩文',
+        key:'zh-CHS'
+      },
+
+      {
+        name:'法文',
+        key:'zh-CHS'
+      },
+      {
+        name:'葡萄牙文',
+        key:'zh-CHS'
+      },
+      {
+        name:'西班牙文',
+        key:'zh-CHS'
+      }
+    ],
+    MultiArray: [['中文', '日文', '英文', '韩文', '法文', '葡萄牙文', '西班牙文'], ['中文', '日文', '英文', '韩文', '法文', '葡萄牙文', '西班牙文']],
     //图像识别API
     ImageAPIConfig:{
       ApiKey:'gxlKucQNdc9byyrQsx7bEGEk',
@@ -51,6 +84,6 @@ module.exports = {
     //有道翻译API
     YoudaoTranslateConfig:{
       appKey:"3891f2b7f04c2513",
-      SecretKey:'HqYPaL5K5XMv6hB2HmUo566IZidu6Eef'
+      SecretKey:'gC4tO8eGSyGx4ay4slrPnBIkwuZT5uvr'
     }
 }

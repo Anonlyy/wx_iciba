@@ -1,108 +1,111 @@
 <template>
-    <view id="app">
-      <scroll-view class="scroll-view" scroll-y style="height:100%" upper-threshold="80" lower-threshold="80" @scrolltolower="getScrollOffset" @scrolltoupper="getScrollOffset" scroll-top="{{scrollTop}}" scroll-with-animation="true">
-        <image class="bg" src="https://cdn.iciba.com/www/img/m/bg1.jpg"></image>
-        <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult>=1?'bg-search-result':''}}]"></view>
-        <view class="container">
-            <view class="container-header {{isSearchResult?'bg-search':''}}">
-                <view class="search-main {{ isFocus ?'input-focus':''}}">
-                    <view class="search-main-box">
-                        <view class="input-logo {{ isFocus ?'image-focus':''}}" >
-                            <image src="https://cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
-                        </view>
-                        <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus" @input="changeInput" value="{{inputValue}}"/>
-                        <view class="btn-search" @tap="putWordMean({{inputValue}})">
-                            <image src="https://cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
-                        </view>
-                    </view>
-                </view>
+  <view id="app">
+    <scroll-view class="scroll-view" scroll-y style="height:100%" upper-threshold="80" lower-threshold="80"
+                 @scrolltolower="getScrollOffset" @scrolltoupper="getScrollOffset" scroll-top="{{scrollTop}}"
+                 scroll-with-animation="true">
+      <image class="bg" src="https://cdn.iciba.com/www/img/m/bg1.jpg"></image>
+      <view class="[bg-shade,{{isFocus?'bg-focus':''}},{{isSearchResult>=1?'bg-search-result':''}}]"></view>
+      <view class="container">
+        <view class="container-header {{isSearchResult?'bg-search':''}}">
+          <view class="search-main {{ isFocus ?'input-focus':''}}">
+            <view class="search-main-box">
+              <view class="input-logo {{ isFocus ?'image-focus':''}}">
+                <image src="https://cdn.iciba.com/www/img/m/sprite/logo.2x.png"></image>
+              </view>
+              <input class="search-input" placeholder="单词和句子都交给小词" maxlength="12" @tap="inputFocus" @input="changeInput"
+                     value="{{inputValue}}"/>
+              <view class="btn-search" @tap="putWordMean({{inputValue}})">
+                <image src="https://cdn.iciba.com/www/img/m/sprite/submit.2x.png"></image>
+              </view>
             </view>
-            <view class="container-body" @tap.stop="inputBlur">
-                <interface-container :isSearchResult.sync="isSearchResult" :inputValue.sync="inputValue"></interface-container>
-                <disc-container :isSearchResult.sync="isSearchResult"></disc-container>
-            </view>
+          </view>
         </view>
-        <back-top :isBackTopShow.sync="isBackTopShow"></back-top>
-      </scroll-view>
-    </view>
+        <view class="container-body" @tap.stop="inputBlur">
+          <interface-container :isSearchResult.sync="isSearchResult"
+                               :inputValue.sync="inputValue"></interface-container>
+          <disc-container :isSearchResult.sync="isSearchResult"></disc-container>
+        </view>
+      </view>
+      <back-top :isBackTopShow.sync="isBackTopShow"></back-top>
+    </scroll-view>
+  </view>
 </template>
 
 <script>
-    import wepy from 'wepy';
-    import BackTop from '../components/backTop';
-    import discContainer from '../components/discContainer';
-    import InterfaceContainer from '../components/interfaceContent';
-    export default class Index extends wepy.page {
-        config = {
-            navigationBarTitleText: '主页'
-        }
-        components = {
-          "back-top":BackTop,//回到顶部
-          "interface-container":InterfaceContainer,//单词联想内容
-          "disc-container":discContainer,//单词释义内容
-        }
+  import wepy from 'wepy';
+  import BackTop from '../components/backTop';
+  import discContainer from '../components/discContainer';
+  import InterfaceContainer from '../components/interfaceContent';
 
-        data = {
-            isFocus: false,
-            isSearchResult: 0, //0代表默认(未搜索过),1代表搜索1次,2代表搜索多次
-            inputValue: '',
-            isBackTopShow:false,//回到顶部按钮显示隐藏
-            scrollTop:0,//滚动条位置数值
+  export default class Index extends wepy.page {
+    config = {
+      navigationBarTitleText: '主页'
+    }
+    components = {
+      "back-top": BackTop,//回到顶部
+      "interface-container": InterfaceContainer,//单词联想内容
+      "disc-container": discContainer,//单词释义内容
+    }
+
+    data = {
+      isFocus: false,
+      isSearchResult: 0, //0代表默认(未搜索过),1代表搜索1次,2代表搜索多次
+      inputValue: '',
+      isBackTopShow: false,//回到顶部按钮显示隐藏
+      scrollTop: 0,//滚动条位置数值
+    }
+
+    methods = {
+      //触发遮罩层关闭显示
+      inputBlur() {
+        if (this.isSearchResult == 0) {
+          this.isFocus = false;
+          this.interfaceResult = [];
+          this.inputValue = '';
+          this.$apply();
+          return;
         }
-
-        methods = {
-            //触发遮罩层关闭显示
-            inputBlur() {
-                if(this.isSearchResult==0){
-                    this.isFocus = false;
-                    this.interfaceResult = [];
-                    this.inputValue = '';
-                    this.$apply();
-                    return;
-                }
-            },
-            inputFocus() {
-                this.isFocus = true;
-            },
-            changeInput(event) {
-              if(this.isSearchResult==1&&this.isFocus){
-                this.isSearchResult = 2;
-                this.$apply();
-              }
-              this.inputValue = event.detail.value;
-            },
-            putWordMean(value){
-              this.$broadcast('getWordMeanValue',value);
-            },
-            getScrollOffset(event){
-              if(event.detail.direction=="bottom"){
-                this.isBackTopShow = true;
-                return;
-              }
-              this.isBackTopShow = false;
-            }
+      },
+      inputFocus() {
+        this.isFocus = true;
+      },
+      changeInput(event) {
+        if (this.isSearchResult == 1 && this.isFocus) {
+          this.isSearchResult = 2;
+          this.$apply();
         }
-
-        events = {
-            "backTop"(value){
-                if(value) {
-                    this.setData({
-                        scrollTop: 0
-                    })
-                    this.$apply();
-                }
-            },
-            "getWordMeanValue"(value){
-              this.$broadcast('getWordMeanValue',value);
-            }
+        this.inputValue = event.detail.value;
+      },
+      putWordMean(value) {
+        this.$broadcast('getWordMeanValue', value);
+      },
+      getScrollOffset(event) {
+        if (event.detail.direction == "bottom") {
+          this.isBackTopShow = true;
+          return;
         }
+        this.isBackTopShow = false;
+      }
+    }
 
-        mixins = []
-        watch = {
-
+    events = {
+      "backTop"(value) {
+        if (value) {
+          this.setData({
+            scrollTop: 0
+          })
+          this.$apply();
         }
+      },
+      "getWordMeanValue"(value) {
+        this.$broadcast('getWordMeanValue', value);
+      }
+    }
 
-        onLoad() {
+    mixins = []
+    watch = {}
+
+    onLoad() {
 //            let _this = this;
 //            wx.hideTabBar({aniamtion:true});
 //            _this.$parent.getUserInfo(function (userInfo) {
@@ -110,118 +113,118 @@
 //                    _this.userInfo = userInfo
 //                }
 //            })
-        }
     }
+  }
 </script>
 
 <style lang="scss" rel="stylesheet/scss">
-    @function rpx($value) {
-        @return $value * 1rpx;
+  @function rpx($value) {
+    @return $value * 1rpx;
+  }
+
+  #app {
+    .bg, .bg-shade {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
     }
-    #app {
-        .bg, .bg-shade {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-        }
-        .bg-shade {
-            transition: all .4s;
-            background-color: rgba(0, 0, 0, 0);
-            z-index: -1;
-        }
-        .bg-focus {
-            background-color: rgba(0, 0, 0, .6);
-        }
-        .bg-search-result {
-            background-color: rgba(255, 255, 255, 1);
-        }
-        .container {
-            width: 100%;
-            height: 100%;
-            .container-header {
-                display: block;
-                height: 13%;
-                .search-main {
-                    position: absolute;
-                    top: 50%;
-                    transition: all .3s;
-                    transform: translateY(-50%) translateZ(0);
-                    width: 100%;
-                    padding: 0 rpx(15);
-                    .search-main-box {
-                        width: 100%;
-                        display: table;
-                        border-radius: rpx(10);
-                        background-color: white;
-                        transition: all .3s;
-                        .input-logo {
-                            width: 10%;
-                            display: table-cell;
-                            vertical-align: middle;
-                            overflow: hidden;
-                            transition: all .2s;
-                            padding: 0 rpx(10) 0 rpx(15);
-                            image {
-                                transition: all .2s;
-                                width: rpx(80);
-                                height: rpx(26);
-                                vertical-align: middle;
-                            }
-                        }
-                        .image-focus{
-                          width: 0;
-                          padding: 0;
-                          image{
-                            width:0;
-                            height: 0;
-                            display: none;
-                          }
-                        }
-                        .btn-search {
-                            display: table-cell;
-                            width: 15%;
-                            height: rpx(100);
-                            vertical-align: middle;
-                            background-color: #008FFF;
-                            text-align: center;
-                            image {
-                                width: rpx(40);
-                                vertical-align: middle;
-                                height: rpx(40);
-                            }
-                        }
-                        .search-input {
-                            width: 75%;
-                            transition: all .2s;
-                            font-size: 14px;
-                            display: table-cell;
-                            padding-left: rpx(10);
-                        }
-                        .image-focus+.search-input{
-                          width: 85%;
-                        }
-
-                    }
-                }
-                .input-focus {
-                    top: rpx(20);
-                    transform: translateY(0);
-                }
-            }
-            .bg-search {
-                background-color: #efefef;
-            }
-            .container-body {
-                height: 87%;
-                width: 100%;
-
-
-            }
-        }
+    .bg-shade {
+      transition: all .4s;
+      background-color: rgba(0, 0, 0, 0);
+      z-index: -1;
     }
+    .bg-focus {
+      background-color: rgba(0, 0, 0, .6);
+    }
+    .bg-search-result {
+      background-color: rgba(255, 255, 255, 1);
+    }
+    .container {
+      width: 100%;
+      height: 100%;
+      .container-header {
+        display: block;
+        height: 13%;
+        .search-main {
+          position: absolute;
+          top: 50%;
+          transition: all .3s;
+          transform: translateY(-50%) translateZ(0);
+          width: 100%;
+          padding: 0 rpx(15);
+          .search-main-box {
+            width: 100%;
+            display: table;
+            border-radius: rpx(10);
+            background-color: white;
+            transition: all .3s;
+            .input-logo {
+              width: 10%;
+              display: table-cell;
+              vertical-align: middle;
+              overflow: hidden;
+              transition: all .2s;
+              padding: 0 rpx(10) 0 rpx(15);
+              image {
+                transition: all .2s;
+                width: rpx(80);
+                height: rpx(26);
+                vertical-align: middle;
+              }
+            }
+            .image-focus {
+              width: 0;
+              padding: 0;
+              image {
+                width: 0;
+                height: 0;
+                display: none;
+              }
+            }
+            .btn-search {
+              display: table-cell;
+              width: 15%;
+              height: rpx(100);
+              vertical-align: middle;
+              background-color: #008FFF;
+              text-align: center;
+              image {
+                width: rpx(40);
+                vertical-align: middle;
+                height: rpx(40);
+              }
+            }
+            .search-input {
+              width: 75%;
+              transition: all .2s;
+              font-size: 14px;
+              display: table-cell;
+              padding-left: rpx(10);
+            }
+            .image-focus + .search-input {
+              width: 85%;
+            }
+
+          }
+        }
+        .input-focus {
+          top: rpx(20);
+          transform: translateY(0);
+        }
+      }
+      .bg-search {
+        background-color: #efefef;
+      }
+      .container-body {
+        height: 87%;
+        width: 100%;
+
+      }
+    }
+  }
 </style>
