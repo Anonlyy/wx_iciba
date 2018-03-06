@@ -10,7 +10,8 @@
 	cd wx_iciba
 	npm install
 	npm start
-####命令说明
+	
+#### 命令说明
 	// 开发阶段，监听src目录下文件变动情况，即使编译并复制到dist文件夹
 	npm start 
 	// 打包编译项目
@@ -24,7 +25,7 @@
 - **百度文字识别OCR API**:https://cloud.baidu.com/doc/OCR/OCR-API.html#.E8.AF.B7.E6.B1.82.E8.AF.B4.E6.98.8E
 - **每日一句API**:http://open.iciba.com/?c=api
 
----
+
 
 ### 开发中的功能
 - 每日一句
