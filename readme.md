@@ -19,10 +19,10 @@
 
 
 ### 感谢与支持
-**金山词典API**:https://github.com/jokermonn/-Api/blob/master/KingsoftDic.md
-**有道智云翻译 API**:http://ai.youdao.com/docs/doc-trans-api.s#p01
-**百度文字识别OCR API**:https://cloud.baidu.com/doc/OCR/OCR-API.html#.E8.AF.B7.E6.B1.82.E8.AF.B4.E6.98.8E
-**每日一句API**:http://open.iciba.com/?c=api
+- **金山词典API**:https://github.com/jokermonn/-Api/blob/master/KingsoftDic.md
+- **有道智云翻译 API**:http://ai.youdao.com/docs/doc-trans-api.s#p01
+- **百度文字识别OCR API**:https://cloud.baidu.com/doc/OCR/OCR-API.html#.E8.AF.B7.E6.B1.82.E8.AF.B4.E6.98.8E
+- **每日一句API**:http://open.iciba.com/?c=api
 
 ---
 
