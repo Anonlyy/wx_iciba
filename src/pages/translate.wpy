@@ -1,18 +1,19 @@
 <template>
   <view class="translate-container">
-    <!--<repeat for="{{words_result}}" key="index" index="index" item="item">-->
-    <!--<text>{{item.words}}</text>-->
-    <!--</repeat>-->
 
-    <textarea name="translate-textarea" class="{{isFocus?'textarea-focus':''}}" id="" cols="30"
-              placeholder-style="{{isFocus?placeholderStyle:''}}" placeholder="请输入你需要翻译的文字.." maxlength="1000"
-              @focus="changeFocus({{isFocus}})" @blur="changeFocus({{isFocus}})" @input="changeTextarea"></textarea>
+    <view class="translate-content">
+      <textarea name="translate-textarea" class="{{isFocus?'textarea-focus':''}}" id="" cols="30"
+                placeholder-style="{{isFocus?placeholderStyle:''}}" placeholder="请输入你需要翻译的文字.." maxlength="1000"
+                @focus="changeFocus({{isFocus}})" @blur="changeFocus({{isFocus}})" @input="changeTextarea"></textarea>
+      <view class="btn-upload" @tap.stop="uploadImage"><image src="https://png.icons8.com/metro/100/008BFF/upload-to-cloud.png"></image></view>
+    </view>
     <view class="select">
       <picker mode="multiSelector" @change="multiPickerChange" @columnchange="multiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">
         <view class="picker">
           {{languageData[multiIndex[0]].name}} » {{languageData[multiIndex[1]].name}}
         </view>
       </picker>
+
       <view class="btn-tl" @tap="handleTranslation({{translationValue}})">翻译</view>
     </view>
     <image class="ic-down  animated {{isSearch?'fadeInDown':'hide'}}"
@@ -32,7 +33,23 @@
       </view>
 
     </view>
-
+    <view class="dialog-mask  {{isImageText?'show':'hide'}}"></view>
+    <view class="dialog animated {{isImageText?'fadeInDown':'hide'}}">
+      <view class="dialog-content">
+        <view class="dialog-title">
+          是否将识别结果返回文本框中?
+        </view>
+        <view class="dialog-translation-content">
+          <repeat for="{{words_result}}" key="index" index="index" item="item">
+            <view class="text">{{item.words}}</view>
+          </repeat>
+        </view>
+        <view class="btn-group">
+          <view class="btn-cancel" @tap="hideDialog">取消</view>
+          <view class="btn-ensure" @tap="handleTranslationText">确定</view>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 <script>
@@ -41,8 +58,8 @@
   import {getAccessToken, getImageToText, getTranslate} from '../utils/api';
   import {LanguageData,MultiArray} from '../utils/config';
   import Sound from '../components/sound';
-  import {YoudaoTranslateConfig} from '../utils/config';
-
+  import {YoudaoTranslateConfig,LeanCloudConfig} from '../utils/config';
+  const AV = require('../utils/av-weapp-min');
   const Base64 = require('../utils/Base64');
   import MD5 from '../utils/MD5';
 
@@ -58,6 +75,8 @@
     data = {
       isFocus: false,
       isSearch: false,
+      isImageText:false,
+      downloadImageSrc:'',//网络图片src
       multiIndex: [0, 0],
       multiArray: MultiArray,
       languageData:LanguageData,
@@ -67,6 +86,8 @@
       },
       translationValue: '', //textarea文本内容
       access_token: '',
+      words_result:[
+      ],
       placeholderStyle: 'color: #0080FF;',
       translationResult: {
         query: '',//源语言
@@ -93,7 +114,6 @@
         this.getTranslateResult(value);
       },
       changeFocus(boolean, event) {
-//          console.log(boolean);
         if (this.isSearch && event.type == "focus") { //搜索过一次又搜索
           console.log('你又搜索了',);
 //            this.isSearch = false;
@@ -119,19 +139,55 @@
       },
       multiPickerColumnChange(e){
         console.log('修改的列为', e.detail.column, '，值为', e.detail.value);
+      },
+      //上传图片事件
+      uploadImage(){
+        const _this = this;
+        wx.chooseImage({
+          count: 1,
+          sizeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera'],
+          success: function(res) {
+            var tempFilePath = res.tempFilePaths[0];
+            new AV.File('file-name', {
+              blob: {
+                uri: tempFilePath,
+              },
+            }).save().then(
+              (file)=>{
+               _this.downloadImageSrc = file.url();
+               _this.$apply();
+               _this.getImageText(_this.downloadImageSrc);
+              }
+            ).catch(
+              error=>{
+                wx.showToast({
+                  title: '抱歉,搜索不到',
+                  image: '../assets/img/ic-error.png',
+                  duration: 1000
+                });
+              }
+
+            );
+          }
+        });
+      },
+      //关闭弹窗
+      hideDialog(){
+        this.isImageText = false;
+      },
+      handleTranslationText(){
+
       }
+
     };
     onLoad() {
-//      wx.chooseImage({
-//        count: 1, // 默认9
-//        sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
-//        sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
-//        success: function (res) {
-//          // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
-//           this.tempFilePaths = res.tempFilePaths;
-//        }
-//      })
-//      this.getImageText();
+      wx.showNavigationBarLoading();
+      AV.init({
+        appId: LeanCloudConfig.appId,
+        appKey: LeanCloudConfig.appKey,
+      });
+      wx.hideNavigationBarLoading();
     }
 
     events = {};
@@ -166,7 +222,7 @@
     }
 
     //获取图片文字识别API
-    async getImageText() {
+    async getImageText(imageSrc) {
       const _this = this;
       await getAccessToken().then(res => {
         _this.access_token = res.data.access_token;
@@ -176,7 +232,7 @@
         access_token: _this.access_token,
         data: {
           access_token: _this.access_token,
-          url: 'http://cw1.tw/CC/images/article/201709/article-59ae48b9701b4.jpg'
+          url: imageSrc
         },
         header: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -185,8 +241,20 @@
       }
       getImageToText(params).then(result => {
         _this.words_result = result.data.words_result;
+        _this.isImageText = true;
+//        wx.showModal({
+//          title: '提示',
+//          content: '这是一个模态弹窗',
+//          success: function(res) {
+//            if (res.confirm) {
+//              console.log('用户点击确定')
+//            } else if (res.cancel) {
+//              console.log('用户点击取消')
+//            }
+//          }
+//        })
         _this.$apply();
-        console.log(result);
+        console.log(_this.words_result);
       });
 
     }
@@ -208,24 +276,44 @@
   .translate-container {
     width: 100%;
     padding: rpx(20) rpx(15) 0;
-    [name="translate-textarea"] {
-      width: 100%;
-      margin: 0 auto;
-      border-radius: rpx(15);
-      font-weight: 300;
-      font-size: rpx(30);
-      padding: rpx(15) rpx(20);
-      box-shadow: rpx(10) rpx(10) rpx(5) #eeeeee;
-      border: 1px solid #eeeeee;
-      background-color: white;
-      height: rpx(360);
-      transition: all .3s;
+    .translate-content{
+      position: relative;
+      [name="translate-textarea"] {
+        width: 100%;
+        margin: 0 auto;
+        border-radius: rpx(15);
+        font-weight: 300;
+        font-size: rpx(30);
+        padding: rpx(15) rpx(20);
+        box-shadow: rpx(10) rpx(10) rpx(5) #eeeeee;
+        border: 1px solid #eeeeee;
+        background-color: white;
+        height: rpx(460);
+        transition: all .3s;
+      }
+      .textarea-focus {
+        box-shadow: rpx(5) rpx(5) rpx(5) rgba(0, 143, 255, .5);
+        border: 1px solid #008FFF;
+        color: #008FFF;
+      }
+      .btn-upload{
+        padding:rpx(25);
+        z-index: 10;
+        border-radius: rpx(30);
+        box-shadow: rpx(5) rpx(5) rpx(10) rgba(0,0,0,.1);
+        background-color: rgba(0,0,0,.05);
+        text-align: center;
+        position: absolute;
+        bottom:rpx(20);
+        right:rpx(20);
+        image{
+          width:rpx(60);
+          height:rpx(60);
+        }
+      }
     }
-    .textarea-focus {
-      box-shadow: rpx(5) rpx(5) rpx(5) rgba(0, 143, 255, .5);
-      border: 1px solid #008FFF;
-      color: #008FFF;
-    }
+
+
     .select {
       display: flex;
       width: 100%;
@@ -240,11 +328,8 @@
         background-color: white;
         text-align: center;
         border-radius: rpx(10);
-        .picker {
-
-
-        }
       }
+
       .btn-tl {
         width: 50%;
         text-align: center;
@@ -301,5 +386,69 @@
       }
     }
 
+    //dialog
+    .dialog-mask{
+      background-color: rgba(0,0,0,.3);
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+    }
+    .dialog{
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1001;
+      .dialog-content{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        width: 80%;
+        height: 50%;
+        color: #000;
+        background-color: white;
+        z-index: 1002;
+        overflow: hidden;
+        .dialog-title{
+          width: 100%;
+          text-align: center;
+          height:rpx(100);
+          line-height:rpx(100);
+          font-weight: normal;
+          font-size: rpx(35);
+          border-bottom: 1px solid #eeeeee;
+          background-color: #0091F8;
+          color: white;
+          box-shadow: rpx(5) rpx(5) rpx(10) rgba(0,0,0,.05);
+        }
+        .dialog-translation-content{
+          padding:rpx(30);
+          min-height: rpx(200);
+          overflow-x: hidden;
+          overflow-y: scroll;
+        }
+        .btn-group{
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          display: flex;
+          height:rpx(80);
+          line-height:rpx(80);
+          border-top:1px solid #eeeeee;
+          >view{
+            width: 50%;
+            text-align: center;
+          }
+          .btn-ensure{
+            color: #0091F8;
+          }
+        }
+      }
+    }
   }
 </style>

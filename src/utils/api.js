@@ -25,7 +25,7 @@ const getWordMean = (params) => wxRequest(params, `https://www.iciba.com/index.p
 //获取Access Token
 const getAccessToken = (params) => wxRequest(params, `https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${ImageAPIConfig.ApiKey}&client_secret=${ImageAPIConfig.SecretKey}`);
 //获取图片识别文字
-const getImageToText = (params) => wxRequest(params, `https://aip.baidubce.com/rest/2.0/ocr/v1/webimage`);
+const getImageToText = (params) => wxRequest(params, `https://aip.baidubce.com/rest/2.0/ocr/v1/general_basic`);
 
 
 //有道翻译API

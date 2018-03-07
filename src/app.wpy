@@ -11,7 +11,6 @@
   }
 
   view,textarea,text {
-    color: #333;
     font-size: 30rpx;
     font-weight: 300;
     font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
@@ -59,9 +58,9 @@
       ],
       window: {
         backgroundTextStyle: 'light',
-        navigationBarBackgroundColor: '#fff',
+        navigationBarBackgroundColor: '#0091F8',
         navigationBarTitleText: 'WeChat',
-        navigationBarTextStyle: 'black'
+        navigationBarTextStyle: 'white'
       },
       tabBar: {
         color: '#AEADAD',

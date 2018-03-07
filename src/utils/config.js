@@ -84,14 +84,20 @@ module.exports = {
         }
     ],
     MultiArray: [[ '自动','英文', '中文', '日文', '韩文', '法文','俄文','葡萄牙文', '西班牙文'], ['自动','英文', '中文', '日文', '韩文', '法文','俄文', '葡萄牙文', '西班牙文']],
-    //图像识别API
+    //密钥可更换为自己的
+    //图像识别API(仅供试用)
     ImageAPIConfig: {
         ApiKey: 'gxlKucQNdc9byyrQsx7bEGEk',
         SecretKey: 'bELd59TesCh6spRcQYqpBfuPyUZt5SWy'
     },
-    //有道翻译API
+    //有道翻译API(仅供试用)
     YoudaoTranslateConfig: {
         appKey: "3891f2b7f04c2513",
         SecretKey: 'gC4tO8eGSyGx4ay4slrPnBIkwuZT5uvr'
+    },
+    //leanCloud
+    LeanCloudConfig:{
+      appId: 'V3EpqkcYqP1k6wTpIBB5B7gI-gzGzoHsz',
+        appKey: 'Hm1jsporRYVY45Ejy3NyuilD',
     }
 }
