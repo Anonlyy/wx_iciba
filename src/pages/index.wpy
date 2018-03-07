@@ -28,6 +28,7 @@
       </view>
       <back-top :isBackTopShow.sync="isBackTopShow"></back-top>
     </scroll-view>
+    <first-screen :isEnd="isEnd"></first-screen>
   </view>
 </template>
 
@@ -36,6 +37,8 @@
   import BackTop from '../components/backTop';
   import discContainer from '../components/discContainer';
   import InterfaceContainer from '../components/interfaceContent';
+  import FirstScreen from '../components/firstScreen';
+  import {getEveryDayWord} from '../utils/api';
 
   export default class Index extends wepy.page {
     config = {
@@ -45,14 +48,23 @@
       "back-top": BackTop,//回到顶部
       "interface-container": InterfaceContainer,//单词联想内容
       "disc-container": discContainer,//单词释义内容
+      "first-screen":FirstScreen, //首屏
     }
 
     data = {
+      isEnd:false,//每日一句显示
       isFocus: false,
       isSearchResult: 0, //0代表默认(未搜索过),1代表搜索1次,2代表搜索多次
       inputValue: '',
       isBackTopShow: false,//回到顶部按钮显示隐藏
       scrollTop: 0,//滚动条位置数值
+      everyDayData:{
+        content:'',
+        note:'',
+        translation:'',
+        fenxiang_img:'',
+      }
+
     }
 
     methods = {
@@ -60,7 +72,7 @@
       inputBlur() {
         if (this.isSearchResult == 0) {
           this.isFocus = false;
-          this.interfaceResult = [];
+//          this.interfaceResult = [];
           this.inputValue = '';
           this.$apply();
           return;
@@ -106,13 +118,20 @@
     watch = {}
 
     onLoad() {
-//            let _this = this;
-//            wx.hideTabBar({aniamtion:true});
-//            _this.$parent.getUserInfo(function (userInfo) {
-//                if (userInfo) {
-//                    _this.userInfo = userInfo
-//                }
-//            })
+      wx.hideTabBar();
+      let params = {
+        date:'2018-03-07'
+      }
+      getEveryDayWord(params).then(result=>{
+        this.everyDayData = {
+          content:result.data.content,
+          note:result.data.note,
+          translation:result.data.translation,
+          fenxiang_img:result.data.fenxiang_img,
+        }
+        this.$apply();
+        this.$broadcast('everyDayData',this.everyDayData);
+      })
     }
   }
 </script>
@@ -120,8 +139,7 @@
 <style lang="scss" rel="stylesheet/scss">
   @function rpx($value) {
     @return $value * 1rpx;
-  }
-
+  }z`
   #app {
     .bg, .bg-shade {
       width: 100%;

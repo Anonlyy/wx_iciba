@@ -1,0 +1,145 @@
+<template>
+    <view class="dialog-container">
+        <view class="dialog-mask  {{isImageText?'show':'hide'}}"></view>
+        <view class="dialog animated {{isImageText?'fadeIn':'hide'}}">
+            <view class="dialog-content">
+                <view class="dialog-title">
+                    是否将识别结果返回文本框中?
+                </view>
+                <view class="dialog-translation-content">
+                    <repeat for="{{words_result}}" key="index" index="index" item="item">
+                        <view class="text">{{item.words}}</view>
+                    </repeat>
+                </view>
+                <view class="btn-group">
+                    <view class="btn-cancel" @tap="hideDialog">取消</view>
+                    <view class="btn-ensure" @tap="handleTranslationText">确定并复制文本</view>
+                </view>
+            </view>
+        </view>
+    </view>
+</template>
+<script>
+
+    import wepy from 'wepy';
+    export default class Dialog extends wepy.page {
+        components = {};
+
+        data = {
+            words_result:[]
+        };
+        methods = {
+            //关闭弹窗
+            hideDialog(){
+                this.isImageText = false;
+                this.$apply();
+            },
+            handleTranslationText(){
+                let str = '';
+                this.words_result.forEach(item=>{
+                    str+=` ${item.words}`;
+                });
+                wx.setClipboardData({
+                    data: str,
+                    success: function(res) {
+                        wx.showToast({
+                            title: '复制成功',
+                            icon: 'success'
+                        });
+                    }
+                });
+                this.isImageText = false;
+                this.$emit('translationValue',str);
+                this.$apply();
+            }
+
+        };
+
+        events = {
+            "wordsResult"(value){
+                this.words_result = value;
+            }
+        };
+        props = {
+            isImageText:{
+                type:Boolean,
+                twoWay:true,
+                default:false
+            }
+        }
+        // Other properties
+    }
+
+</script>
+
+<style lang="scss" rel="stylesheet/scss">
+    @function rpx($value) {
+        @return $value * 1rpx;
+    }
+    .dialog-container{
+        //dialog
+        .dialog-mask{
+            background-color: rgba(0,0,0,.3);
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+        .dialog{
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1001;
+            .dialog-content{
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%,-50%);
+                width: 80%;
+                height: 50%;
+                color: #000;
+                background-color: white;
+                z-index: 1002;
+                overflow: hidden;
+                .dialog-title{
+                    width: 100%;
+                    text-align: center;
+                    height:rpx(100);
+                    line-height:rpx(100);
+                    font-weight: normal;
+                    font-size: rpx(35);
+                    border-bottom: 1px solid #eeeeee;
+                    background-color: #0091F8;
+                    color: white;
+                    box-shadow: rpx(5) rpx(5) rpx(10) rgba(0,0,0,.05);
+                }
+                .dialog-translation-content{
+                    padding:rpx(30);
+                    min-height: rpx(354);
+                    overflow-x: hidden;
+                    overflow-y: scroll;
+                }
+                .btn-group{
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    display: flex;
+                    height:rpx(80);
+                    line-height:rpx(80);
+                    border-top:1px solid #eeeeee;
+                    >view{
+                        width: 50%;
+                        text-align: center;
+                    }
+                    .btn-ensure{
+                        color: #0091F8;
+                    }
+                }
+            }
+        }
+    }
+</style>

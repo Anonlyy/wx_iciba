@@ -1,0 +1,79 @@
+<template>
+    <view class="screen animated {{isEnd?'fadeOut':'fadeIn'}}">
+        <image src="{{everyDayData.fenxiang_img}}" @tap.stop="hideImage"></image>
+    </view>
+</template>
+<script>
+
+    import wepy from 'wepy';
+    import {getEveryDayWord} from '../utils/api'
+    export default class Header extends wepy.page {
+        components = {};
+
+
+        data = {
+            isEnd:false,
+            everyDayData:{
+                content:'',
+                note:'',
+                translation:'',
+                fenxiang_img:'',
+            }
+        };
+        methods = {
+            hideImage(){
+                this.isEnd = true;
+                this.$apply();
+                wx.showTabBar();
+            }
+        };
+
+        events = {
+            "everyDayData"(value){
+                this.everyDayData = value;
+                wx.hideTabBar();
+                this.$apply();
+            }
+        };
+        props = {
+            isEnd:{
+                type:Boolean,
+                twoWay:true,
+                default:false
+            }
+        }
+        onLoad() {
+            wx.hideTabBar();
+            getEveryDayWord().then(result=>{
+                this.everyDayData = {
+                    content:result.data.content,
+                    note:result.data.note,
+                    translation:result.data.translation,
+                    fenxiang_img:result.data.fenxiang_img,
+                }
+                this.$apply();
+                this.$broadcast('everyDayData',this.everyDayData);
+            })
+        }
+        // Other properties
+    }
+
+</script>
+
+<style lang="scss" rel="stylesheet/scss">
+    @function rpx($value) {
+        @return $value * 1rpx;
+    }
+    .screen{
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 10001;
+        image{
+            width: 100%;
+            height: 100%;
+        }
+    }
+</style>
