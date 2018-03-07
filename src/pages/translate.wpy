@@ -2,7 +2,7 @@
   <view class="translate-container">
 
     <view class="translate-content">
-      <textarea name="translate-textarea" class="{{isFocus?'textarea-focus':''}}" id="" cols="30"
+      <textarea name="translate-textarea" class="{{isFocus?'textarea-focus':''}}" value="{{translationValue}}" cols="30"
                 placeholder-style="{{isFocus?placeholderStyle:''}}" placeholder="请输入你需要翻译的文字.." maxlength="1000"
                 @focus="changeFocus({{isFocus}})" @blur="changeFocus({{isFocus}})" @input="changeTextarea"></textarea>
       <view class="btn-upload" @tap.stop="uploadImage"><image src="https://png.icons8.com/metro/100/008BFF/upload-to-cloud.png"></image></view>
@@ -34,7 +34,7 @@
 
     </view>
     <view class="dialog-mask  {{isImageText?'show':'hide'}}"></view>
-    <view class="dialog animated {{isImageText?'fadeInDown':'hide'}}">
+    <view class="dialog animated {{isImageText?'fadeIn':'hide'}}">
       <view class="dialog-content">
         <view class="dialog-title">
           是否将识别结果返回文本框中?
@@ -46,7 +46,7 @@
         </view>
         <view class="btn-group">
           <view class="btn-cancel" @tap="hideDialog">取消</view>
-          <view class="btn-ensure" @tap="handleTranslationText">确定</view>
+          <view class="btn-ensure" @tap="handleTranslationText">确定并复制文本</view>
         </view>
       </view>
     </view>
@@ -175,9 +175,26 @@
       //关闭弹窗
       hideDialog(){
         this.isImageText = false;
+        this.$apply();
       },
       handleTranslationText(){
 
+        let str = '';
+        this.words_result.forEach(item=>{
+          str+=` ${item.words}`;
+        });
+        wx.setClipboardData({
+          data: str,
+          success: function(res) {
+            wx.showToast({
+              title: '复制成功',
+              icon: 'success'
+            });
+          }
+        });
+        this.isImageText = false;
+        this.translationValue = str;
+        this.$apply();
       }
 
     };
@@ -427,7 +444,7 @@
         }
         .dialog-translation-content{
           padding:rpx(30);
-          min-height: rpx(200);
+          min-height: rpx(354);
           overflow-x: hidden;
           overflow-y: scroll;
         }
