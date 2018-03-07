@@ -3,7 +3,7 @@
   #app,page {
     width: 100%;
     height: 100%;
-    color: #333;
+    /*color: #333;*/
     box-sizing: border-box;
     font-size: 30rpx;
     font-weight: 300;
@@ -72,7 +72,7 @@
           pagePath: 'pages/index',
           selectedIconPath: './assets/img/tabbar/tabBar_ic_index_active.png',
           iconPath: './assets/img/tabbar/tabBar_ic_index.png',
-          text: '首页'
+          text: '查词'
         }, {
           pagePath: 'pages/translate',
           selectedIconPath: './assets/img/tabbar/tabBar_ic_translate_active.png',

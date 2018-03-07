@@ -39,7 +39,7 @@
 
   export default class Index extends wepy.page {
     config = {
-      navigationBarTitleText: '主页'
+      navigationBarTitleText: '查词'
     }
     components = {
       "back-top": BackTop,//回到顶部
