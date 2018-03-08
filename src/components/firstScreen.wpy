@@ -1,5 +1,5 @@
 <template>
-    <view class="screen animated {{isEnd?'fadeOut':'fadeIn'}}">
+    <view class="screen animated {{isEnd?animateHide:'fadeInDown'}}">
         <image src="{{everyDayData.fenxiang_img}}" @tap.stop="hideImage"></image>
     </view>
 </template>
@@ -18,23 +18,19 @@
                 note:'',
                 translation:'',
                 fenxiang_img:'',
-            }
+            },
+            animateHide:'fadeOutUp'
         };
         methods = {
             hideImage(){
-                this.isEnd = true;
-                this.$apply();
-                wx.showTabBar();
+              this.isEnd = true;
+              setTimeout(()=>{this.animateHide='hide';this.$apply();},200);
+              this.$apply();
+              wx.showTabBar();
             }
         };
 
-        events = {
-            "everyDayData"(value){
-                this.everyDayData = value;
-                wx.hideTabBar();
-                this.$apply();
-            }
-        };
+        events = {};
         props = {
             isEnd:{
                 type:Boolean,
@@ -52,7 +48,6 @@
                     fenxiang_img:result.data.fenxiang_img,
                 }
                 this.$apply();
-                this.$broadcast('everyDayData',this.everyDayData);
             })
         }
         // Other properties
@@ -76,4 +71,7 @@
             height: 100%;
         }
     }
+  .translateY{
+    top:rpx(-1000);
+  }
 </style>

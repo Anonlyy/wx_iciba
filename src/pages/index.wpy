@@ -116,21 +116,16 @@
 
     mixins = []
     watch = {}
-
     onLoad() {
-      wx.hideTabBar();
-      let params = {
-        date:'2018-03-07'
-      }
-      getEveryDayWord(params).then(result=>{
-        this.everyDayData = {
-          content:result.data.content,
-          note:result.data.note,
-          translation:result.data.translation,
-          fenxiang_img:result.data.fenxiang_img,
-        }
-        this.$apply();
-        this.$broadcast('everyDayData',this.everyDayData);
+//      getEveryDayWord().then(result=>{
+//        this.everyDayData = {
+//          content:result.data.content,
+//          note:result.data.note,
+//          translation:result.data.translation,
+//          fenxiang_img:result.data.fenxiang_img,
+//        }
+//        this.$apply();
+//        this.$broadcast('everyDayData',this.everyDayData);
       })
     }
   }
@@ -139,7 +134,7 @@
 <style lang="scss" rel="stylesheet/scss">
   @function rpx($value) {
     @return $value * 1rpx;
-  }z`
+  }
   #app {
     .bg, .bg-shade {
       width: 100%;
@@ -160,7 +155,7 @@
       background-color: rgba(0, 0, 0, .6);
     }
     .bg-search-result {
-      background-color: rgba(255, 255, 255, 1);
+      background-color: white;
     }
     .container {
       width: 100%;
