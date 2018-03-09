@@ -84,6 +84,8 @@
       changeInput(event) {
         if (this.isSearchResult == 1 && this.isFocus) {
           this.isSearchResult = 2;
+//          this.$broadcast('getWordMeanValue', this.inputValue);
+          console.log('input',this.inputValue)
           this.$apply();
         }
         this.inputValue = event.detail.value;
@@ -111,22 +113,14 @@
       },
       "getWordMeanValue"(value) {
         this.$broadcast('getWordMeanValue', value);
+        this.inputValue = value; //将搜索的值赋值给inputValue
+        this.$apply();
       }
     }
 
     mixins = []
     watch = {}
     onLoad() {
-//      getEveryDayWord().then(result=>{
-//        this.everyDayData = {
-//          content:result.data.content,
-//          note:result.data.note,
-//          translation:result.data.translation,
-//          fenxiang_img:result.data.fenxiang_img,
-//        }
-//        this.$apply();
-//        this.$broadcast('everyDayData',this.everyDayData);
-      })
     }
   }
 </script>
